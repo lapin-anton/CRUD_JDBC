@@ -1,4 +1,4 @@
-public class ReadManager implements Command {
+public class DeleteCommand implements Command {
     @Override
     public void execute() {
 

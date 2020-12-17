@@ -1,4 +1,4 @@
-public class UpdateManager implements Command {
+public class UpdateCommand implements Command {
     @Override
     public void execute() {
 

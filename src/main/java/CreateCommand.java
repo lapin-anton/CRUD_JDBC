@@ -1,4 +1,4 @@
-public class CreateManager implements Command {
+public class CreateCommand implements Command {
     @Override
     public void execute() {
 

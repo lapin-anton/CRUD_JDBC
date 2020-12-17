@@ -28,6 +28,10 @@ public class ConsoleHelper {
     }
 
     public static void sayGoodBuy() {
-        System.out.println("До скорых встреч!");
+        writeMessage("До скорых встреч!");
+    }
+
+    public static void writeMessage(String message) {
+        System.out.println(message);
     }
 }
