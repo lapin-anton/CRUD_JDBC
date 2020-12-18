@@ -103,7 +103,7 @@ public class ReadCommand implements Command {
     }
 
     private void extractAllAboutPC(Connection connection) throws SQLException {
-        String sql = String.format("SELECT * FROM common_pc");
+        String sql = String.format("SELECT * FROM pc");
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {
@@ -120,7 +120,7 @@ public class ReadCommand implements Command {
     }
 
     private void extractAllAboutLaptop(Connection connection) throws SQLException {
-        String sql = String.format("SELECT * FROM common_laptop");
+        String sql = String.format("SELECT * FROM laptop");
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {
@@ -129,14 +129,15 @@ public class ReadCommand implements Command {
             int speed = rs.getInt("speed");
             int hd = rs.getInt("hd");
             int ram = rs.getInt("ram");
+            int screen = rs.getInt("screen");
             int price = rs.getInt("price");
-            Laptop lt = new Laptop(model, maker, price, speed, hd, ram);
+            Laptop lt = new Laptop(model, maker, price, speed, hd, ram, screen);
             products.add(lt);
         }
     }
 
     private void extractAllAboutPrinter(Connection connection) throws SQLException {
-        String sql = String.format("SELECT * FROM common_printer");
+        String sql = String.format("SELECT * FROM printer");
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {

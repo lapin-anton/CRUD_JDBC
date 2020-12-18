@@ -31,7 +31,9 @@ public class Settings {
             String db = ConsoleHelper.readString();
             ConsoleHelper.writeMessage("Введите номер порта сервера БД:");
             int port = ConsoleHelper.readInt();
-            this.dbURL = String.format("jdbc:%s://localhost:%d/pc_shop?useUnicode=true&serverTimezone=UTC", db, port);
+            ConsoleHelper.writeMessage("Введите имя БД:");
+            String dbName = ConsoleHelper.readString();
+            this.dbURL = String.format("jdbc:%s://localhost:%d/%s?useUnicode=true&serverTimezone=UTC", db, port, dbName);
             ConsoleHelper.writeMessage("Введите имя пользователя:");
             this.username = ConsoleHelper.readString();
             ConsoleHelper.writeMessage("Введите пароль:");

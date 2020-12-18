@@ -4,18 +4,20 @@ public class Laptop extends Product {
     private int speed;
     private int hd;
     private int ram;
+    private int screen;
 
-    public Laptop(String model, String maker, int price, int speed, int hd, int ram) {
+    public Laptop(String model, String maker, int price, int speed, int hd, int ram, int screen) {
         super(model, maker, price);
         this.speed = speed;
         this.hd = hd;
         this.ram = ram;
+        this.screen = screen;
     }
 
     @Override
     public String toString() {
-        String out = "Laptop: #%-3d %-10s %-10s %-5d %-5d %-5d";
-        return String.format(out, this.getId(), this.getModel(), this.getMaker(), this.speed, this.hd, this.ram);
+        String out = "Laptop: #%-3d %-10s %-10s %-5d %-5d %-5d %-5d";
+        return String.format(out, this.getId(), this.getModel(), this.getMaker(), this.speed, this.hd, this.ram, this.screen);
     }
 
     public int getSpeed() {
@@ -40,5 +42,13 @@ public class Laptop extends Product {
 
     public void setRam(int ram) {
         this.ram = ram;
+    }
+
+    public int getScreen() {
+        return screen;
+    }
+
+    public void setScreen(int screen) {
+        this.screen = screen;
     }
 }
