@@ -25,6 +25,8 @@ public class Settings {
             this.password = props.getProperty(PASSWORD);
         } else {
             isEdited = true;
+            ConsoleHelper.writeMessage("Настройки подключения к БД не были сохранены.");
+            ConsoleHelper.writeMessage("Пожалуйста, введите новые настройки.");
             ConsoleHelper.writeMessage("Введите тип БД:");
             String db = ConsoleHelper.readString();
             ConsoleHelper.writeMessage("Введите номер порта сервера БД:");
