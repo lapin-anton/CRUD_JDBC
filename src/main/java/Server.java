@@ -1,0 +1,77 @@
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Server {
+
+    private static Settings settings;
+
+    static {
+        try {
+            settings = new Settings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            int port = settings.getPort();
+            try (ServerSocket serverSocket = new ServerSocket(port)) {
+                System.out.println("Сервер запущен.");
+                try (Connection connection = DriverManager.getConnection(settings.getDbURL(), settings.getUsername(),
+                        settings.getPassword())) {
+                    if (connection == null) return;
+                    ConsoleHelper.writeMessage("Соединение с базой данных установлено.");
+                    while (true) {
+                        Socket s = serverSocket.accept();
+                        Handler handler = new Handler(s);
+                        handler.start();
+                    }
+                } catch (SQLException e) {
+                    ExceptionHandler.log(e);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            ExceptionHandler.log(e);
+        }
+    }
+
+    private static class Handler extends Thread {
+        private Socket socket;
+
+        public Handler(Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        public void run() {
+            ConsoleHelper.writeMessage(String.format("Установлено соединение с удаленным адресом %s",
+                    socket.getRemoteSocketAddress().toString()));
+            try (Connector connector = new Connector(socket)){
+                serverMainLoop(connector);
+            } catch (Exception e) {
+                ConsoleHelper.writeMessage(String.format("Ошибка обмена данными с удаленным адресом %s",
+                        socket.getRemoteSocketAddress()));
+            } finally {
+                ConsoleHelper.writeMessage(String.format("Соединение с удаленным адресом %s закрыто",
+                        socket.getRemoteSocketAddress().toString()));
+            }
+        }
+
+        private void serverMainLoop(Connector connector) throws IOException, ClassNotFoundException {
+            while (true) {
+                Order order = connector.serverReceive();
+                // сервер что-то делает с запросом от клиента в зависимости от характера запроса
+                // сервер отправляет результат обработки запроса клиенту
+                Result result = new Result();
+                connector.serverSend(result);
+            }
+        }
+    }
+}
