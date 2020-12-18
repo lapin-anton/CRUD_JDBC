@@ -9,10 +9,17 @@ public class Settings {
     private final static String DB_URL_PROPERTY = "dbURL";
     private final static String USERNAME = "username";
     private final static String PASSWORD = "password";
+    private final static String HOST = "host";
+    private final static String PORT = "port";
 
+    // настройки для подключения к БД
     private String dbURL;
     private String username;
     private String password;
+    // настройки для подключения к клиента к серверу
+    private int port;
+    private String hostName;
+    // флаг изменения настроек
     private boolean isEdited = false;
 
     public Settings() throws Exception {
@@ -23,9 +30,11 @@ public class Settings {
             this.dbURL = props.getProperty(DB_URL_PROPERTY);
             this.username = props.getProperty(USERNAME);
             this.password = props.getProperty(PASSWORD);
+            this.hostName = props.getProperty(HOST);
+            this.port = Integer.parseInt(props.getProperty(PORT));
         } else {
             isEdited = true;
-            ConsoleHelper.writeMessage("Настройки подключения к БД не были сохранены.");
+            ConsoleHelper.writeMessage("Настройки подключения к БД и серверу не были сохранены.");
             ConsoleHelper.writeMessage("Пожалуйста, введите новые настройки.");
             ConsoleHelper.writeMessage("Введите тип БД:");
             String db = ConsoleHelper.readString();
@@ -38,6 +47,10 @@ public class Settings {
             this.username = ConsoleHelper.readString();
             ConsoleHelper.writeMessage("Введите пароль:");
             this.password = ConsoleHelper.readString();
+            ConsoleHelper.writeMessage("Введите имя хоста сервера приложения:");
+            this.hostName = ConsoleHelper.readString();
+            ConsoleHelper.writeMessage("Введите номер порта сокета:");
+            this.port = ConsoleHelper.readInt();
             saveNewSettings();
         }
     }
@@ -69,13 +82,22 @@ public class Settings {
         this.password = password;
     }
 
+    public int getPort() {
+        return port;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
     public void saveNewSettings() throws Exception {
         if(isEdited) {
             Properties properties = new Properties();
             properties.setProperty(DB_URL_PROPERTY, this.dbURL);
             properties.setProperty(USERNAME, this.username);
             properties.setProperty(PASSWORD, this.password);
-
+            properties.setProperty(HOST, this.hostName);
+            properties.setProperty(PORT, String.valueOf(this.port));
             File f = new File(CONFIG_PATH).getParentFile();
             FileOutputStream fos = new FileOutputStream(f);
             properties.store(fos, "");
