@@ -103,10 +103,11 @@ public class ReadCommand implements Command {
     }
 
     private void extractAllAboutPC(Connection connection) throws SQLException {
-        String sql = String.format("SELECT * FROM pc");
+        String sql = "SELECT * FROM pc";
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {
+            int id = rs.getInt("id");
             String maker = rs.getString("maker");
             String model = rs.getString("model");
             int speed = rs.getInt("speed");
@@ -114,16 +115,17 @@ public class ReadCommand implements Command {
             int ram = rs.getInt("ram");
             String cd = rs.getString("cd");
             int price = rs.getInt("price");
-            PC pc = new PC(model, maker, price, speed, hd, ram, cd);
+            PC pc = new PC(id, model, maker, price, speed, hd, ram, cd);
             products.add(pc);
         }
     }
 
     private void extractAllAboutLaptop(Connection connection) throws SQLException {
-        String sql = String.format("SELECT * FROM laptop");
+        String sql = "SELECT * FROM laptop";
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {
+            int id = rs.getInt("id");
             String maker = rs.getString("maker");
             String model = rs.getString("model");
             int speed = rs.getInt("speed");
@@ -131,22 +133,23 @@ public class ReadCommand implements Command {
             int ram = rs.getInt("ram");
             int screen = rs.getInt("screen");
             int price = rs.getInt("price");
-            Laptop lt = new Laptop(model, maker, price, speed, hd, ram, screen);
+            Laptop lt = new Laptop(id, model, maker, price, speed, hd, ram, screen);
             products.add(lt);
         }
     }
 
     private void extractAllAboutPrinter(Connection connection) throws SQLException {
-        String sql = String.format("SELECT * FROM printer");
+        String sql = "SELECT * FROM printer";
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {
+            int id = rs.getInt("id");
             String maker = rs.getString("maker");
             String model = rs.getString("model");
             String color = rs.getString("color");
             String type = rs.getString("type");
             int price = rs.getInt("price");
-            Printer pr = new Printer(model, maker, price, type, color);
+            Printer pr = new Printer(id, model, maker, price, type, color);
             products.add(pr);
         }
     }

@@ -4,8 +4,8 @@ public class Printer extends Product {
     private String type;
     private String color;
 
-    public Printer(String model, String maker, int price, String type, String color) {
-        super(model, maker, price);
+    public Printer(int id, String model, String maker, int price, String type, String color) {
+        super(id, model, maker, price);
         this.type = type;
         this.color = color;
     }

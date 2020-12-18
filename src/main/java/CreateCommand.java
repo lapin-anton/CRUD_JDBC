@@ -10,7 +10,7 @@ public class CreateCommand implements Command {
             if (connection == null) return;
             ConsoleHelper.writeMessage("Соединение с базой данных установлено");
             boolean isExit = false;
-            while (true) {
+            do {
                 ConsoleHelper.writeMessage("Укажите, какой тип товара необходимо добавить:");
                 ConsoleHelper.writeMessage("1 ПК");
                 ConsoleHelper.writeMessage("2 Ноутбук");
@@ -26,10 +26,10 @@ public class CreateCommand implements Command {
                         break;
                     case 3:
                         addPrinter(connection);
-                    default: isExit = true;
+                    default:
+                        isExit = true;
                 }
-                if (isExit) break;
-            }
+            } while (!isExit);
         } catch (SQLException ex) {
             ExceptionHandler.log(ex);
         }
@@ -46,8 +46,8 @@ public class CreateCommand implements Command {
         String type = ConsoleHelper.readString();
         ConsoleHelper.writeMessage("Цветной (y/n):");
         String color = ConsoleHelper.readString();
-        String sql = String.format("INSERT INTO printer (model, maker, price, type, color) " +
-                "VALUES (?, ?, ?, ?, ?)");
+        String sql = "INSERT INTO printer (model, maker, price, type, color) " +
+                "VALUES (?, ?, ?, ?, ?)";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, model);
         statement.setString(2, maker);
@@ -76,8 +76,8 @@ public class CreateCommand implements Command {
         int ram = ConsoleHelper.readInt();
         ConsoleHelper.writeMessage("Размер экрана монитора:");
         int screen = ConsoleHelper.readInt();
-        String sql = String.format("INSERT INTO laptop (model, maker, price, speed, hd, ram, screen) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)");
+        String sql = "INSERT INTO laptop (model, maker, price, speed, hd, ram, screen) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, model);
         statement.setString(2, maker);
@@ -108,8 +108,8 @@ public class CreateCommand implements Command {
         int ram = ConsoleHelper.readInt();
         ConsoleHelper.writeMessage("Скорость привода CD-дисков:");
         String cd = ConsoleHelper.readString();
-        String sql = String.format("INSERT INTO pc (model, maker, price, speed, hd, ram, cd) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)");
+        String sql = "INSERT INTO pc (model, maker, price, speed, hd, ram, cd) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, model);
         statement.setString(2, maker);

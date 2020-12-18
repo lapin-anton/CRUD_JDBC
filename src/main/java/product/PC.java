@@ -6,8 +6,8 @@ public class PC extends Product {
     private int ram;
     private String cd;
 
-    public PC(String model, String maker, int price, int speed, int hd, int ram, String cd) {
-        super(model, maker, price);
+    public PC(int id, String model, String maker, int price, int speed, int hd, int ram, String cd) {
+        super(id, model, maker, price);
         this.speed = speed;
         this.hd = hd;
         this.ram = ram;

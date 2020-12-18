@@ -1,14 +1,13 @@
 package product;
 
 public abstract class Product {
-    private static int counter = 0;
     private int id;
     private String model;
     private String maker;
     private int price;
 
-    public Product(String model, String maker, int price) {
-        this.id = ++counter;
+    public Product(int id, String model, String maker, int price) {
+        this.id = id;
         this.model = model;
         this.maker = maker;
         this.price = price;

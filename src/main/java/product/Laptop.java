@@ -6,8 +6,8 @@ public class Laptop extends Product {
     private int ram;
     private int screen;
 
-    public Laptop(String model, String maker, int price, int speed, int hd, int ram, int screen) {
-        super(model, maker, price);
+    public Laptop(int id, String model, String maker, int price, int speed, int hd, int ram, int screen) {
+        super(id, model, maker, price);
         this.speed = speed;
         this.hd = hd;
         this.ram = ram;
