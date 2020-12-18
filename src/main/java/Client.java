@@ -12,6 +12,7 @@ public class Client {
     }
 
     public static void main(String[] args) {
+        Settings s = getSettings();
         ConsoleHelper.writeMessage("Вас приветствует CRUD-приложение");
         while(true) {
             ConsoleHelper.writeMessage("Пожалуйста, выберите действие (укажите его порядковый номер):");
@@ -26,8 +27,18 @@ public class Client {
                 break;
             }
             if (commands.containsKey(answer)) {
-                commands.get(answer).execute();
+                commands.get(answer).execute(s);
             }
         }
+    }
+
+    private static Settings getSettings() {
+        Settings s = null;
+        try {
+            s = new Settings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return s;
     }
 }

@@ -11,9 +11,8 @@ public class ReadCommand implements Command {
     private ArrayList<Product> products = new ArrayList<>();
 
     @Override
-    public void execute() {
+    public void execute(Settings s) {
         try {
-            Settings s = new Settings();
             try (Connection connection = DriverManager.getConnection(s.getDbURL(), s.getUsername(), s.getPassword())) {
                 if (connection == null) return;
                 ConsoleHelper.writeMessage("Соединение с базой данных установлено");
