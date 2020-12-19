@@ -70,7 +70,7 @@ public class Client {
                 ConsoleHelper.writeMessage(String.format("%d Найти запись", CommandType.READ.ordinal()));
                 ConsoleHelper.writeMessage(String.format("%d Обновить существующую запись", CommandType.UPDATE.ordinal()));
                 ConsoleHelper.writeMessage(String.format("%d Удалить запись", CommandType.DELETE.ordinal()));
-                ConsoleHelper.writeMessage(String.format("%s Выйти", CommandType.NONE.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%d Выйти", CommandType.NONE.ordinal()));
                 int answer = ConsoleHelper.readInt();
                 if(answer == CommandType.NONE.ordinal()) {
                     ConsoleHelper.sayGoodbye();
