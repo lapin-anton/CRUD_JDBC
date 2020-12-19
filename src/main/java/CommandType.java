@@ -1,7 +1,7 @@
 import java.io.Serializable;
 
 public enum CommandType implements Serializable {
-    NONE,
+    SINGLE_READ,
     CREATE,
     READ,
     UPDATE,

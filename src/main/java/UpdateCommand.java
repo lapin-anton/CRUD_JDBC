@@ -1,151 +1,109 @@
+import product.*;
+
+import java.io.IOException;
 import java.sql.*;
 
 public class UpdateCommand implements Command {
     @Override
-    public void execute(Connector connector) {
-        try (Connection connection = DriverManager.getConnection(s.getDbURL(), s.getUsername(), s.getPassword())) {
-            if (connection == null) return;
-            ConsoleHelper.writeMessage("Соединение с базой данных установлено");
-            boolean isExit = false;
-            do {
+    public void execute() {
+        try {
+            while (true) {
                 ConsoleHelper.writeMessage("Укажите, данные товара какого типа необходимо изменить:");
-                ConsoleHelper.writeMessage("1 ПК");
-                ConsoleHelper.writeMessage("2 Ноутбук");
-                ConsoleHelper.writeMessage("3 Принтер");
+                ConsoleHelper.writeMessage(String.format("%s ПК", ProductType.PC));
+                ConsoleHelper.writeMessage(String.format("%s Ноутбук", ProductType.LAPTOP));
+                ConsoleHelper.writeMessage(String.format("%s Принтер", ProductType.PRINTER));
                 ConsoleHelper.writeMessage("0 Выйти в главное меню");
                 int prod_type = ConsoleHelper.readInt();
-                switch (prod_type) {
-                    case 1:
-                        updatePC(connection);
-                        break;
-                    case 2:
-                        updateLaptop(connection);
-                        break;
-                    case 3:
-                        updatePrinter(connection);
-                    default:
-                        isExit = true;
+                if((prod_type >= 1) && (prod_type <= 3)) {
+                    updateProduct(prod_type);
+                } else {
+                    break;
                 }
-            } while (!isExit);
-        } catch (SQLException ex) {
-            ExceptionHandler.log(ex);
+            }
+        } catch (Exception e) {
+            ExceptionHandler.log(e);
         }
     }
 
-    private void updatePrinter(Connection connection) throws SQLException {
-        ConsoleHelper.writeMessage("Укажите номер модели принтера, данные которой необходимо изменить:");
-        String currModel = ConsoleHelper.readString();
-        String sql = String.format("SELECT * FROM printer WHERE model='%s'", currModel);
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        if(!rs.next()) {
-            ConsoleHelper.writeMessage("К сожалению, такая модель принтера не нашлась:(");
+    private void updateProduct(int prod_type) throws IOException, ClassNotFoundException {
+        Product product = null;
+        ProductType[] types = ProductType.values();
+        String modelForUpdate = getModelForUpdate();
+        Order order = new Order(CommandType.SINGLE_READ, types[prod_type], modelForUpdate);
+        Connector connector = Client.getConnector();
+        connector.clientSend(order);
+        Result result = connector.clientReceive();
+        if (result.getUpdateStatus().equals("OK")) {
+            product = result.getProductList().get(0);
+        } else {
+            ConsoleHelper.writeMessage(result.getUpdateStatus());
             return;
         }
-        ConsoleHelper.writeMessage(String.format("Изменить модель '%s' на:", rs.getString("model")));
+        switch (types[prod_type]) {
+            case PC: product = getPCForUpdate((PC) product);
+                break;
+            case LAPTOP: product = getLaptopForUpdate((Laptop) product);
+                break;
+            case PRINTER: product = getPrinterForUpdate((Printer) product);
+        }
+        order = new Order(types[prod_type], modelForUpdate, product);
+        connector.clientSend(order);
+        result = connector.clientReceive();
+        ConsoleHelper.writeMessage(result.getUpdateStatus());
+    }
+
+    private Product getPrinterForUpdate(Printer printer) {
+        ConsoleHelper.writeMessage(String.format("Изменить модель '%s' на:", printer.getModel()));
         String model = ConsoleHelper.readString();
-        ConsoleHelper.writeMessage(String.format("Изменить производителя '%s' на:", rs.getString("maker")));
+        ConsoleHelper.writeMessage(String.format("Изменить производителя '%s' на:", printer.getMaker()));
         String maker = ConsoleHelper.readString();
-        ConsoleHelper.writeMessage(String.format("Изменить значение цены '%d' на:", rs.getInt("price")));
+        ConsoleHelper.writeMessage(String.format("Изменить значение цены '%d' на:", printer.getPrice()));
         int price = ConsoleHelper.readInt();
-        ConsoleHelper.writeMessage(String.format("Изменить тип печати '%s' на:", rs.getString("type")));
+        ConsoleHelper.writeMessage(String.format("Изменить тип печати '%s' на:", printer.getType()));
         String type = ConsoleHelper.readString();
-        ConsoleHelper.writeMessage(String.format("Изменить статус цветной печати '%s' на:", rs.getString("color")));
+        ConsoleHelper.writeMessage(String.format("Изменить статус цветной печати '%s' на:", printer.getColor()));
         String color = ConsoleHelper.readString();
-        sql = "UPDATE printer SET model=?, maker=?, price=?, type=?, color=? WHERE model=?";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, model);
-        statement.setString(2, maker);
-        statement.setInt(3, price);
-        statement.setString(4, type);
-        statement.setString(5, color);
-        statement.setString(6, currModel);
-
-        int rowsInserted = statement.executeUpdate();
-        if (rowsInserted > 0) {
-            ConsoleHelper.writeMessage(String.format("Данные модели принтера '%s' успешно обновлены!", model));
-        }
+        return new Printer(0, model, maker, price, type, color);
     }
 
-    private void updateLaptop(Connection connection) throws SQLException {
-        ConsoleHelper.writeMessage("Укажите номер модели ноутбука, данные которой необходимо изменить:");
-        String currModel = ConsoleHelper.readString();
-        String sql = String.format("SELECT * FROM laptop WHERE model='%s'", currModel);
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        if(!rs.next()) {
-            ConsoleHelper.writeMessage("К сожалению, такая модель ноутбука не нашлась:(");
-            return;
-        }
-        ConsoleHelper.writeMessage(String.format("Изменить модель '%s' на:", rs.getString("model")));
+    private Product getLaptopForUpdate(Laptop laptop) {
+        ConsoleHelper.writeMessage(String.format("Изменить модель '%s' на:", laptop.getModel()));
         String model = ConsoleHelper.readString();
-        ConsoleHelper.writeMessage(String.format("Изменить производителя '%s' на:", rs.getString("maker")));
+        ConsoleHelper.writeMessage(String.format("Изменить производителя '%s' на:", laptop.getMaker()));
         String maker = ConsoleHelper.readString();
-        ConsoleHelper.writeMessage(String.format("Изменить значение цены '%d' на:", rs.getInt("price")));
+        ConsoleHelper.writeMessage(String.format("Изменить значение цены '%d' на:", laptop.getPrice()));
         int price = ConsoleHelper.readInt();
-        ConsoleHelper.writeMessage(String.format("Изменить значение скорости процессора '%d' на:", rs.getInt("speed")));
+        ConsoleHelper.writeMessage(String.format("Изменить значение скорости процессора '%d' на:", laptop.getSpeed()));
         int speed = ConsoleHelper.readInt();
-        ConsoleHelper.writeMessage(String.format("Изменить объем памяти жесткого диска '%d' на:", rs.getInt("hd")));
+        ConsoleHelper.writeMessage(String.format("Изменить объем памяти жесткого диска '%d' на:", laptop.getHd()));
         int hd = ConsoleHelper.readInt();
-        ConsoleHelper.writeMessage(String.format("Изменить объем оперативной памяти '%d' на:", rs.getInt("ram")));
+        ConsoleHelper.writeMessage(String.format("Изменить объем оперативной памяти '%d' на:", laptop.getRam()));
         int ram = ConsoleHelper.readInt();
-        ConsoleHelper.writeMessage(String.format("Изменить размер экрана монитора '%d' на:", rs.getInt("screen")));
+        ConsoleHelper.writeMessage(String.format("Изменить размер экрана монитора '%d' на:", laptop.getScreen()));
         int screen = ConsoleHelper.readInt();
-        sql = "UPDATE laptop SET model=?, maker=?, price=?, speed=?, hd=?, ram=?, screen=? WHERE model=?";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, model);
-        statement.setString(2, maker);
-        statement.setInt(3, price);
-        statement.setInt(4, speed);
-        statement.setInt(5, hd);
-        statement.setInt(6, ram);
-        statement.setInt(7, screen);
-        statement.setString(8, currModel);
-
-        int rowsInserted = statement.executeUpdate();
-        if (rowsInserted > 0) {
-            ConsoleHelper.writeMessage(String.format("Данные модели ноутбука '%s' успешно обновлены!", model));
-        }
+        return new Laptop(0, model, maker, price, speed, hd, ram, screen);
     }
 
-    private void updatePC(Connection connection) throws SQLException {
-        ConsoleHelper.writeMessage("Укажите номер модели ПК, данные которой необходимо изменить:");
-        String currModel = ConsoleHelper.readString();
-        String sql = String.format("SELECT * FROM pc WHERE model='%s'", currModel);
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        if(!rs.next()) {
-            ConsoleHelper.writeMessage("К сожалению, такая модель ПК не нашлась:(");
-            return;
-        }
-        ConsoleHelper.writeMessage(String.format("Изменить модель '%s' на:", rs.getString("model")));
+    private Product getPCForUpdate(PC pc) {
+        ConsoleHelper.writeMessage(String.format("Изменить модель '%s' на:", pc.getModel()));
         String model = ConsoleHelper.readString();
-        ConsoleHelper.writeMessage(String.format("Изменить производителя '%s' на:", rs.getString("maker")));
+        ConsoleHelper.writeMessage(String.format("Изменить производителя '%s' на:", pc.getMaker()));
         String maker = ConsoleHelper.readString();
-        ConsoleHelper.writeMessage(String.format("Изменить значение цены '%d' на:", rs.getInt("price")));
+        ConsoleHelper.writeMessage(String.format("Изменить значение цены '%d' на:", pc.getPrice()));
         int price = ConsoleHelper.readInt();
-        ConsoleHelper.writeMessage(String.format("Изменить значение скорости процессора '%d' на:", rs.getInt("speed")));
+        ConsoleHelper.writeMessage(String.format("Изменить значение скорости процессора '%d' на:", pc.getSpeed()));
         int speed = ConsoleHelper.readInt();
-        ConsoleHelper.writeMessage(String.format("Изменить объем памяти жесткого диска '%d' на:", rs.getInt("hd")));
+        ConsoleHelper.writeMessage(String.format("Изменить объем памяти жесткого диска '%d' на:", pc.getHd()));
         int hd = ConsoleHelper.readInt();
-        ConsoleHelper.writeMessage(String.format("Изменить объем оперативной памяти '%d' на:", rs.getInt("ram")));
+        ConsoleHelper.writeMessage(String.format("Изменить объем оперативной памяти '%d' на:", pc.getRam()));
         int ram = ConsoleHelper.readInt();
-        ConsoleHelper.writeMessage(String.format("Изменить скорость привода CD-дисков '%s' на:", rs.getString("cd")));
+        ConsoleHelper.writeMessage(String.format("Изменить скорость привода CD-дисков '%s' на:", pc.getCd()));
         String cd = ConsoleHelper.readString();
-        sql = "UPDATE pc SET model=?, maker=?, price=?, speed=?, hd=?, ram=?, cd=? WHERE model=?";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, model);
-        statement.setString(2, maker);
-        statement.setInt(3, price);
-        statement.setInt(4, speed);
-        statement.setInt(5, hd);
-        statement.setInt(6, ram);
-        statement.setString(7, cd);
-        statement.setString(8, currModel);
+        return new PC(0, model, maker, price, speed, hd, ram, cd);
+    }
 
-        int rowsInserted = statement.executeUpdate();
-        if (rowsInserted > 0) {
-            ConsoleHelper.writeMessage(String.format("Данные модели ПК '%s' успешно обновлены!", model));
-        }
+    private String getModelForUpdate() {
+        ConsoleHelper.writeMessage("Укажите модель товара, данные которой необходимо изменить:");
+        return ConsoleHelper.readString();
     }
 }

@@ -2,10 +2,12 @@ import product.Product;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Result implements Serializable {
 
-    private ArrayList<Product> products;
+    private List<Product> products;
     private String updateStatus; // результат добавления, удаления, обновления в БД
 
     public Result(String updateStatus) {
@@ -16,7 +18,12 @@ public class Result implements Serializable {
         this.products = products;
     }
 
-    public ArrayList<Product> getProductList() {
+    public Result(Product product, String updateStatus) {
+        this.products = Collections.singletonList(product);
+        this.updateStatus = updateStatus;
+    }
+
+    public List<Product> getProductList() {
         return products;
     }
 

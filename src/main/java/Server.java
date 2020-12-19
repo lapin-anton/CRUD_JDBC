@@ -86,11 +86,13 @@ public class Server {
     private static Result handleOrder(Order order) {
         Result result = null;
         switch (order.getCommandType()) {
+            case SINGLE_READ: result = dbManager.extractProductByModel(order.getProductType(), order.getModel());
+                break;
             case CREATE: result = dbManager.createProduct(order);
                 break;
             case READ: result = dbManager.extractAllProductsByType(order.getProductType());
                 break;
-            case UPDATE: //
+            case UPDATE: result = dbManager.updateProduct(order);
                 break;
             case DELETE: //
                 break;

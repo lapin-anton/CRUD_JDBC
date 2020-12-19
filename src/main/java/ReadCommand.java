@@ -56,7 +56,7 @@ public class ReadCommand implements Command {
         Connector connector = Client.getConnector();
         connector.clientSend(order);
         Result result = connector.clientReceive();
-        products = result.getProductList();
+        products = (ArrayList<Product>) result.getProductList();
     }
 
     private void getProductByModel() {

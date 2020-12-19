@@ -15,6 +15,13 @@ public class Order implements Serializable {
         this.productType = productType;
     }
 
+    // Запрос на чтение одной записи
+    public Order(CommandType commandType, ProductType productType, String model) {
+        this.commandType = commandType;
+        this.productType = productType;
+        this.model = model;
+    }
+
     // запрос на удаление
     public Order(ProductType productType, String model) {
         this.commandType = CommandType.DELETE;

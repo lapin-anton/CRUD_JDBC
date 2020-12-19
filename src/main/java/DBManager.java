@@ -12,6 +12,84 @@ public class DBManager {
     }
 
     // для запросов на чтение
+    public Result extractProductByModel(ProductType productType, String model) {
+        Result result = null;
+        Product product = null;
+        String type = null;
+        try {
+            switch (productType) {
+                case PC: product = extractPCByModel(model);
+                    break;
+                case LAPTOP: product = extractLaptopByModel(model);
+                    break;
+                case PRINTER: product = extractPrinterByModel(model);
+            }
+        } catch (SQLException e) {
+            ExceptionHandler.log(e);
+        }
+        if(product != null) {
+            result = new Result(product, "OK");
+        } else {
+            result = new Result("К сожалению, такая модель товара в базе не нашлась:(");
+        }
+        return result;
+    }
+
+    private Product extractPrinterByModel(String mdl) throws SQLException {
+        Printer printer = null;
+        String sql = String.format("SELECT * FROM printer WHERE model=%s", mdl);
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        if (rs.next()) {
+            int id = rs.getInt("id");
+            String maker = rs.getString("maker");
+            String model = rs.getString("model");
+            String color = rs.getString("color");
+            String type = rs.getString("type");
+            int price = rs.getInt("price");
+            printer = new Printer(id, model, maker, price, type, color);
+        }
+        return printer;
+    }
+
+    private Product extractLaptopByModel(String mdl) throws SQLException {
+        Laptop laptop = null;
+        String sql = String.format("SELECT * FROM laptop WHERE model=%s", mdl);
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        if (rs.next()) {
+            int id = rs.getInt("id");
+            String maker = rs.getString("maker");
+            String model = rs.getString("model");
+            int speed = rs.getInt("speed");
+            int hd = rs.getInt("hd");
+            int ram = rs.getInt("ram");
+            int screen = rs.getInt("screen");
+            int price = rs.getInt("price");
+            laptop = new Laptop(id, model, maker, price, speed, hd, ram, screen);
+        }
+        return laptop;
+    }
+
+    private Product extractPCByModel(String mdl) throws SQLException {
+        PC pc = null;
+        String sql = String.format("SELECT * FROM pc WHERE model=%s", mdl);
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        if (rs.next()) {
+            int id = rs.getInt("id");
+            String maker = rs.getString("maker");
+            String model = rs.getString("model");
+            int speed = rs.getInt("speed");
+            int hd = rs.getInt("hd");
+            int ram = rs.getInt("ram");
+            String cd = rs.getString("cd");
+            int price = rs.getInt("price");
+            pc = new PC(id, model, maker, price, speed, hd, ram, cd);
+        }
+        return pc;
+    }
+
     private Result extractAllAboutPC() throws SQLException {
         ArrayList<Product> pcList = new ArrayList<>();
         String sql = "SELECT * FROM pc";
@@ -174,5 +252,86 @@ public class DBManager {
     }
 
     // для запросов на обноление
+    public Result updateProduct(Order order) {
+        String message = null;
+        try {
+            switch (order.getProductType()) {
+                case PC: message = updatePC(order.getProduct(), order.getModel());
+                    break;
+                case LAPTOP: message = updateLaptop(order.getProduct(), order.getModel());
+                    break;
+                case PRINTER: message = updatePrinter(order.getProduct(), order.getModel());
+            }
+        } catch (SQLException e) {
+            ExceptionHandler.log(e);
+        }
+        return new Result(message);
+    }
+
+    private String updatePrinter(Product product, String model) throws SQLException {
+        String result = null;
+        Printer printer = (Printer) product;
+        String sql = "UPDATE printer SET model=?, maker=?, price=?, type=?, color=? WHERE model=?";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, printer.getModel());
+        statement.setString(2, printer.getMaker());
+        statement.setInt(3, printer.getPrice());
+        statement.setString(4, printer.getType());
+        statement.setString(5, printer.getColor());
+        statement.setString(6, model);
+        int rowsInserted = statement.executeUpdate();
+        if (rowsInserted > 0) {
+            result = String.format("Данные модели принтера '%s' успешно обновлены!", printer.getModel());
+        } else {
+            result = String.format("Данные модели принтера '%s' не удалось обновить!", printer.getModel());
+        }
+        return result;
+    }
+
+    private String updateLaptop(Product product, String model) throws SQLException {
+        String result = null;
+        Laptop laptop = (Laptop) product;
+        String sql = "UPDATE laptop SET model=?, maker=?, price=?, speed=?, hd=?, ram=?, screen=? WHERE model=?";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, laptop.getModel());
+        statement.setString(2, laptop.getMaker());
+        statement.setInt(3, laptop.getPrice());
+        statement.setInt(4, laptop.getSpeed());
+        statement.setInt(5, laptop.getHd());
+        statement.setInt(6, laptop.getRam());
+        statement.setInt(7, laptop.getScreen());
+        statement.setString(8, model);
+        int rowsInserted = statement.executeUpdate();
+        if (rowsInserted > 0) {
+            result = String.format("Данные модели ноутбука '%s' успешно обновлены!", laptop.getModel());
+        } else {
+            result = String.format("Данные модели ноутбука '%s' не удалось обновить!", laptop.getModel());
+        }
+        return result;
+    }
+
+    private String updatePC(Product product, String currModel) throws SQLException {
+        String result = null;
+        PC pc = (PC) product;
+        String sql = "UPDATE pc SET model=?, maker=?, price=?, speed=?, hd=?, ram=?, cd=? WHERE model=?";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, pc.getModel());
+        statement.setString(2, pc.getMaker());
+        statement.setInt(3, pc.getPrice());
+        statement.setInt(4, pc.getSpeed());
+        statement.setInt(5, pc.getHd());
+        statement.setInt(6, pc.getRam());
+        statement.setString(7, pc.getCd());
+        statement.setString(8, currModel);
+        int rowsInserted = statement.executeUpdate();
+        if (rowsInserted > 0) {
+            result = String.format("Данные модели ПК '%s' успешно обновлены!", pc.getModel());
+        } else {
+            result = String.format("Данные модели ПК '%s' не удалось обновить!", pc.getModel());
+        }
+        return result;
+    }
+
     // для запросов на удаление
+
 }
