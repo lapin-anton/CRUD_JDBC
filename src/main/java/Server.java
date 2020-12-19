@@ -94,7 +94,7 @@ public class Server {
                 break;
             case UPDATE: result = dbManager.updateProduct(order);
                 break;
-            case DELETE: //
+            case DELETE: result = dbManager.deleteProduct(order);
                 break;
         }
         return result;

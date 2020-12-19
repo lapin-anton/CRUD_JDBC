@@ -1,53 +1,37 @@
-import java.sql.*;
+import product.ProductType;
+
+import java.io.IOException;
 
 public class DeleteCommand implements Command {
     @Override
-    public void execute(Connector connector) {
-        try (Connection connection = DriverManager.getConnection(s.getDbURL(), s.getUsername(), s.getPassword())) {
-            if (connection == null) return;
-            ConsoleHelper.writeMessage("Соединение с базой данных установлено");
-            do {
+    public void execute() {
+        try {
+            while (true) {
                 ConsoleHelper.writeMessage("Укажите, товар какого типа необходимо удалить:");
-                ConsoleHelper.writeMessage("1 ПК");
-                ConsoleHelper.writeMessage("2 Ноутбук");
-                ConsoleHelper.writeMessage("3 Принтер");
+                ConsoleHelper.writeMessage(String.format("%d ПК", ProductType.PC.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%d Ноутбук", ProductType.LAPTOP.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%d Принтер", ProductType.PRINTER.ordinal()));
                 ConsoleHelper.writeMessage("0 Выйти в главное меню");
                 int prod_type = ConsoleHelper.readInt();
-                if(prod_type == 0) break;
-                deleteProduct(connection, prod_type);
-            } while (true);
-        } catch (SQLException ex) {
-            ExceptionHandler.log(ex);
+                if ((prod_type >= 1) && (prod_type <= 3)) {
+                    deleteProduct(prod_type);
+                } else {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            ExceptionHandler.log(e);
         }
     }
 
-    private void deleteProduct(Connection connection, int type) throws SQLException {
-        String sType;
-        switch (type) {
-            case 1: sType = "pc";
-                break;
-            case 2: sType = "laptop";
-                break;
-            case 3: sType = "printer";
-                break;
-            default: return;
-        }
+    private void deleteProduct(int type) throws IOException, ClassNotFoundException {
+        ProductType[] types = ProductType.values();
         ConsoleHelper.writeMessage("Введите модель, которую нужно удалить:");
         String model = ConsoleHelper.readString();
-        String sql = String.format("SELECT * FROM %s where model=?", sType);
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, model);
-        ResultSet rs = statement.executeQuery();
-        if(!rs.next()) {
-            ConsoleHelper.writeMessage("Нельзя удалить несуществующий товар. Проверьте правильность ввода названия модели.");
-            deleteProduct(connection, type);
-        }
-        sql = String.format("DELETE FROM %s WHERE model=?", sType);
-        statement = connection.prepareStatement(sql);
-        statement.setString(1, model);
-        int rowsDeleted = statement.executeUpdate();
-        if (rowsDeleted > 0) {
-            ConsoleHelper.writeMessage(String.format("Товар модель '%s' успешно удален из базы!", model));
-        }
+        Order order = new Order(types[type], model);
+        Connector connector = Client.getConnector();
+        connector.clientSend(order);
+        Result result = connector.clientReceive();
+        ConsoleHelper.writeMessage(result.getUpdateStatus());
     }
 }

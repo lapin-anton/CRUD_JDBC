@@ -13,9 +13,9 @@ public class ReadCommand implements Command {
         try {
             while (true) {
                 ConsoleHelper.writeMessage("Информацию по какому товару вы хотите найти? (выберите тип товара)");
-                ConsoleHelper.writeMessage(String.format("%s ПК", ProductType.PC.ordinal()));
-                ConsoleHelper.writeMessage(String.format("%s Ноутбуки", ProductType.LAPTOP.ordinal()));
-                ConsoleHelper.writeMessage(String.format("%s Принтеры", ProductType.PRINTER.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%d ПК", ProductType.PC.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%d Ноутбуки", ProductType.LAPTOP.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%d Принтеры", ProductType.PRINTER.ordinal()));
                 ConsoleHelper.writeMessage("0. Выход в главное меню");
                 int prod_type = ConsoleHelper.readInt();
                 if((prod_type == 0) || (prod_type > 3)) break;

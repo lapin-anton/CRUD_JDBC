@@ -9,9 +9,9 @@ public class UpdateCommand implements Command {
         try {
             while (true) {
                 ConsoleHelper.writeMessage("Укажите, данные товара какого типа необходимо изменить:");
-                ConsoleHelper.writeMessage(String.format("%s ПК", ProductType.PC));
-                ConsoleHelper.writeMessage(String.format("%s Ноутбук", ProductType.LAPTOP));
-                ConsoleHelper.writeMessage(String.format("%s Принтер", ProductType.PRINTER));
+                ConsoleHelper.writeMessage(String.format("%d ПК", ProductType.PC.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%d Ноутбук", ProductType.LAPTOP.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%d Принтер", ProductType.PRINTER.ordinal()));
                 ConsoleHelper.writeMessage("0 Выйти в главное меню");
                 int prod_type = ConsoleHelper.readInt();
                 if((prod_type >= 1) && (prod_type <= 3)) {

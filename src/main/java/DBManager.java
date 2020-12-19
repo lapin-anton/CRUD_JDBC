@@ -333,5 +333,29 @@ public class DBManager {
     }
 
     // для запросов на удаление
-
+    public Result deleteProduct(Order order) {
+        String message = null;
+        String sType = null;
+        switch (order.getProductType()) {
+            case PC: sType = "pc";
+                break;
+            case LAPTOP: sType = "laptop";
+                break;
+            case PRINTER: sType = "printer";
+        }
+        try {
+            String sql = String.format("DELETE FROM %s WHERE model=?", sType);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, order.getModel());
+            int rowsDeleted = statement.executeUpdate();
+            if (rowsDeleted > 0) {
+                message = String.format("Товар модель '%s' успешно удален из базы!", order.getModel());
+            } else {
+                message = String.format("Товар модель '%s' не был удален из базы. Возможно, его нет в базе.", order.getModel());
+            }
+        } catch (SQLException e) {
+            ExceptionHandler.log(e);
+        }
+        return new Result(message);
+    }
 }
