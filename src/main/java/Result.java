@@ -19,4 +19,8 @@ public class Result implements Serializable {
     public ArrayList<Product> getProductList() {
         return products;
     }
+
+    public String getUpdateStatus() {
+        return updateStatus;
+    }
 }

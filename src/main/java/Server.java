@@ -86,7 +86,7 @@ public class Server {
     private static Result handleOrder(Order order) {
         Result result = null;
         switch (order.getCommandType()) {
-            case CREATE: //
+            case CREATE: result = dbManager.createProduct(order);
                 break;
             case READ: result = dbManager.extractAllProductsByType(order.getProductType());
                 break;

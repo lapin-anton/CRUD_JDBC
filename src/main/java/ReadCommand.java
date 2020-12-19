@@ -50,14 +50,8 @@ public class ReadCommand implements Command {
     }
 
     private void extractAllProductsByType(int prod_type) throws IOException, ClassNotFoundException {
-        ProductType productType = null;
-        switch (prod_type) {
-            case 1: productType = ProductType.PC;
-                break;
-            case 2: productType = ProductType.LAPTOP;
-                break;
-            case 3: productType = ProductType.PRINTER;
-        }
+        ProductType[] types = ProductType.values();
+        ProductType productType = types[prod_type];
         Order order = new Order(productType);
         Connector connector = Client.getConnector();
         connector.clientSend(order);
