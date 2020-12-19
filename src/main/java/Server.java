@@ -7,17 +7,24 @@ import java.sql.SQLException;
 
 public class Server {
 
+
     private static Settings settings;
+    private static DBManager dbManager;
 
     static {
         try {
             settings = new Settings();
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionHandler.log(e);
         }
     }
 
     public static void main(String[] args) {
+        Server server = new Server();
+        server.run();
+    }
+
+    private void run() {
         try {
             int port = settings.getPort();
             try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -25,6 +32,7 @@ public class Server {
                 try (Connection connection = DriverManager.getConnection(settings.getDbURL(), settings.getUsername(),
                         settings.getPassword())) {
                     if (connection == null) return;
+                    dbManager = new DBManager(connection);
                     ConsoleHelper.writeMessage("Соединение с базой данных установлено.");
                     while (true) {
                         Socket s = serverSocket.accept();
@@ -68,10 +76,25 @@ public class Server {
             while (true) {
                 Order order = connector.serverReceive();
                 // сервер что-то делает с запросом от клиента в зависимости от характера запроса
+                Result result = handleOrder(order);
                 // сервер отправляет результат обработки запроса клиенту
-                Result result = new Result();
                 connector.serverSend(result);
             }
         }
+    }
+
+    private static Result handleOrder(Order order) {
+        Result result = null;
+        switch (order.getCommandType()) {
+            case CREATE: //
+                break;
+            case READ: result = dbManager.extractAllProductsByType(order.getProductType());
+                break;
+            case UPDATE: //
+                break;
+            case DELETE: //
+                break;
+        }
+        return result;
     }
 }

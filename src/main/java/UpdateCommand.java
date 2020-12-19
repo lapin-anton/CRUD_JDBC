@@ -2,7 +2,7 @@ import java.sql.*;
 
 public class UpdateCommand implements Command {
     @Override
-    public void execute(Settings s) {
+    public void execute(Connector connector) {
         try (Connection connection = DriverManager.getConnection(s.getDbURL(), s.getUsername(), s.getPassword())) {
             if (connection == null) return;
             ConsoleHelper.writeMessage("Соединение с базой данных установлено");

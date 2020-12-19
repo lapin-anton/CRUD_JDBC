@@ -27,7 +27,7 @@ public class ConsoleHelper {
         return result;
     }
 
-    public static void sayGoodBuy() {
+    public static void sayGoodbye() {
         writeMessage("До скорых встреч!");
     }
 

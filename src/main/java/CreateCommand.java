@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class CreateCommand implements Command {
     @Override
-    public void execute(Settings s) {
+    public void execute() {
         try (Connection connection = DriverManager.getConnection(s.getDbURL(), s.getUsername(), s.getPassword())) {
             if (connection == null) return;
             ConsoleHelper.writeMessage("Соединение с базой данных установлено");

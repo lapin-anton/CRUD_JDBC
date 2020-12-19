@@ -1,3 +1,3 @@
 public interface Command {
-    public void execute(Settings s);
+    public void execute();
 }

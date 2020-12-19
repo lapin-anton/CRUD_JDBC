@@ -1,9 +1,7 @@
-import product.Laptop;
-import product.PC;
-import product.Printer;
 import product.Product;
+import product.ProductType;
 
-import java.sql.*;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ReadCommand implements Command {
@@ -11,63 +9,60 @@ public class ReadCommand implements Command {
     private ArrayList<Product> products = new ArrayList<>();
 
     @Override
-    public void execute(Settings s) {
+    public void execute() {
         try {
-            try (Connection connection = DriverManager.getConnection(s.getDbURL(), s.getUsername(), s.getPassword())) {
-                if (connection == null) return;
-                ConsoleHelper.writeMessage("Соединение с базой данных установлено");
-                boolean flag = false;
-                while (true) {
-                    ConsoleHelper.writeMessage("Информацию по какому товару вы хотите найти? (выберите тип товара)");
-                    ConsoleHelper.writeMessage("1. ПК");
-                    ConsoleHelper.writeMessage("2. Ноутбуки");
-                    ConsoleHelper.writeMessage("3. Принтеры");
-                    ConsoleHelper.writeMessage("0. Выход в главное меню");
-                    int prod_type = ConsoleHelper.readInt();
-                    switch (prod_type) {
-                        case 1:
-                            extractAllAboutPC(connection);
-                            break;
-                        case 2:
-                            extractAllAboutLaptop(connection);
-                            break;
-                        case 3:
-                            extractAllAboutPrinter(connection);
-                            break;
-                        default:
-                            flag = true; // exit from the loop
-                    }
-                    if (flag) break;
-                    ConsoleHelper.writeMessage("Все товары данной категории:");
-                    for (Product p : products) {
-                        ConsoleHelper.writeMessage(p.toString());
-                    }
-                    ConsoleHelper.writeMessage("============================");
-                    ConsoleHelper.writeMessage("Выберите критерий поиска:");
-                    ConsoleHelper.writeMessage("1. Поиск по модели");
-                    ConsoleHelper.writeMessage("2. Поиск по производителю");
-                    ConsoleHelper.writeMessage("3. Поиск по цене");
-                    int search_criteria = ConsoleHelper.readInt();
-                    ConsoleHelper.writeMessage("Товары по выбранным критериям поиска:");
-                    switch (search_criteria) {
-                        case 1:
-                            getProductByModel();
-                            break;
-                        case 2:
-                            getProductByMaker();
-                            break;
-                        case 3:
-                            getProductByPrice();
-                    }
-                    ConsoleHelper.writeMessage("==========================");
-                    products.clear();
+            while (true) {
+                ConsoleHelper.writeMessage("Информацию по какому товару вы хотите найти? (выберите тип товара)");
+                ConsoleHelper.writeMessage(String.format("%s ПК", ProductType.PC.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%s Ноутбуки", ProductType.LAPTOP.ordinal()));
+                ConsoleHelper.writeMessage(String.format("%s Принтеры", ProductType.PRINTER.ordinal()));
+                ConsoleHelper.writeMessage("0. Выход в главное меню");
+                int prod_type = ConsoleHelper.readInt();
+                if((prod_type == 0) || (prod_type > 3)) break;
+                extractAllProductsByType(prod_type);
+                ConsoleHelper.writeMessage("Все товары данной категории:");
+                for (Product p : products) {
+                    ConsoleHelper.writeMessage(p.toString());
                 }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+                ConsoleHelper.writeMessage("============================");
+                ConsoleHelper.writeMessage("Выберите критерий поиска:");
+                ConsoleHelper.writeMessage("1. Поиск по модели");
+                ConsoleHelper.writeMessage("2. Поиск по производителю");
+                ConsoleHelper.writeMessage("3. Поиск по цене");
+                int search_criteria = ConsoleHelper.readInt();
+                ConsoleHelper.writeMessage("Товары по выбранным критериям поиска:");
+                switch (search_criteria) {
+                    case 1:
+                        getProductByModel();
+                        break;
+                    case 2:
+                        getProductByMaker();
+                        break;
+                    case 3:
+                        getProductByPrice();
+                }
+                ConsoleHelper.writeMessage("==========================");
+                products.clear();
             }
         } catch (Exception e) {
             ExceptionHandler.log(e);
         }
+    }
+
+    private void extractAllProductsByType(int prod_type) throws IOException, ClassNotFoundException {
+        ProductType productType = null;
+        switch (prod_type) {
+            case 1: productType = ProductType.PC;
+                break;
+            case 2: productType = ProductType.LAPTOP;
+                break;
+            case 3: productType = ProductType.PRINTER;
+        }
+        Order order = new Order(productType);
+        Connector connector = Client.getConnector();
+        connector.clientSend(order);
+        Result result = connector.clientReceive();
+        products = result.getProductList();
     }
 
     private void getProductByModel() {
@@ -102,55 +97,4 @@ public class ReadCommand implements Command {
         }
     }
 
-    private void extractAllAboutPC(Connection connection) throws SQLException {
-        String sql = "SELECT * FROM pc";
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            String maker = rs.getString("maker");
-            String model = rs.getString("model");
-            int speed = rs.getInt("speed");
-            int hd = rs.getInt("hd");
-            int ram = rs.getInt("ram");
-            String cd = rs.getString("cd");
-            int price = rs.getInt("price");
-            PC pc = new PC(id, model, maker, price, speed, hd, ram, cd);
-            products.add(pc);
-        }
-    }
-
-    private void extractAllAboutLaptop(Connection connection) throws SQLException {
-        String sql = "SELECT * FROM laptop";
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            String maker = rs.getString("maker");
-            String model = rs.getString("model");
-            int speed = rs.getInt("speed");
-            int hd = rs.getInt("hd");
-            int ram = rs.getInt("ram");
-            int screen = rs.getInt("screen");
-            int price = rs.getInt("price");
-            Laptop lt = new Laptop(id, model, maker, price, speed, hd, ram, screen);
-            products.add(lt);
-        }
-    }
-
-    private void extractAllAboutPrinter(Connection connection) throws SQLException {
-        String sql = "SELECT * FROM printer";
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            String maker = rs.getString("maker");
-            String model = rs.getString("model");
-            String color = rs.getString("color");
-            String type = rs.getString("type");
-            int price = rs.getInt("price");
-            Printer pr = new Printer(id, model, maker, price, type, color);
-            products.add(pr);
-        }
-    }
 }
