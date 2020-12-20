@@ -14,10 +14,6 @@ public class ClientGuiController extends Client {
     }
 
     private class GuiSocketThread extends SocketThread {
-        @Override
-        public void run() {
-            //
-        }
 
         @Override
         protected void clientMainLoop() {
