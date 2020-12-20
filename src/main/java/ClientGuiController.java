@@ -14,7 +14,22 @@ public class ClientGuiController extends Client {
     }
 
     private class GuiSocketThread extends SocketThread {
-        //
+        @Override
+        public void run() {
+            //
+        }
+
+        @Override
+        protected void clientMainLoop() {
+            while(true) {
+
+            }
+        }
+
+        @Override
+        protected void notifyConnectionStatusChanged(boolean clientConnected) {
+            view.notifyConnectionStatusChanged(clientConnected);
+        }
     }
 
     public ClientGuiView getView() {

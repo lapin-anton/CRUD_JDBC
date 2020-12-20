@@ -7,6 +7,7 @@ public class Client {
     protected static Connector connector;
     private volatile boolean clientConnected = false;
     private static Settings settings;
+    private Command currentCommand;
 
     static {
         try {
@@ -16,7 +17,7 @@ public class Client {
         }
     }
 
-    private static HashMap<Integer, Command> commands = new HashMap<>();
+    protected static HashMap<Integer, Command> commands = new HashMap<>();
 
     static {
         commands.put(CommandType.CREATE.ordinal(), new CreateCommand());
@@ -77,7 +78,17 @@ public class Client {
                     break;
                 }
                 if (commands.containsKey(answer)) {
-                    commands.get(answer).execute();
+                    currentCommand = commands.get(answer);
+                    currentCommand.execute();
+                }
+                while (true) {
+                    if (currentCommand != null) {
+                        if (currentCommand.isDone()) {
+                            Result result = currentCommand.getResult();
+                            currentCommand = null;
+                            break;
+                        }
+                    }
                 }
             }
         }

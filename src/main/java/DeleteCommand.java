@@ -3,6 +3,10 @@ import product.ProductType;
 import java.io.IOException;
 
 public class DeleteCommand implements Command {
+
+    private Result result;
+    private boolean isDone = false;
+
     @Override
     public void execute() {
         try {
@@ -19,6 +23,7 @@ public class DeleteCommand implements Command {
                     break;
                 }
             }
+            isDone = true;
         } catch (Exception e) {
             ExceptionHandler.log(e);
         }
@@ -31,7 +36,17 @@ public class DeleteCommand implements Command {
         Order order = new Order(types[type], model);
         Connector connector = Client.getConnector();
         connector.clientSend(order);
-        Result result = connector.clientReceive();
+        result = connector.clientReceive();
         ConsoleHelper.writeMessage(result.getUpdateStatus());
+    }
+
+    @Override
+    public boolean isDone() {
+        return isDone;
+    }
+
+    @Override
+    public Result getResult() {
+        return result;
     }
 }

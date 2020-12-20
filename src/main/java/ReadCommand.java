@@ -6,7 +6,9 @@ import java.util.ArrayList;
 
 public class ReadCommand implements Command {
 
-    private ArrayList<Product> products = new ArrayList<>();
+    protected ArrayList<Product> products = new ArrayList<>();
+    protected Result result;
+    protected boolean isDone = false;
 
     @Override
     public void execute() {
@@ -43,33 +45,42 @@ public class ReadCommand implements Command {
                 }
                 ConsoleHelper.writeMessage("==========================");
                 products.clear();
+                isDone = true;
             }
         } catch (Exception e) {
             ExceptionHandler.log(e);
         }
     }
 
-    private void extractAllProductsByType(int prod_type) throws IOException, ClassNotFoundException {
+    public Result getResult() {
+        return result;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    protected void extractAllProductsByType(int prod_type) throws IOException, ClassNotFoundException {
         ProductType[] types = ProductType.values();
         ProductType productType = types[prod_type];
         Order order = new Order(productType);
         Connector connector = Client.getConnector();
         connector.clientSend(order);
-        Result result = connector.clientReceive();
+        result = connector.clientReceive();
         products = (ArrayList<Product>) result.getProductList();
     }
 
-    private void getProductByModel() {
+    protected void getProductByModel() {
         ConsoleHelper.writeMessage("Введите модель выбранной категории товара");
         String model = ConsoleHelper.readString();
         for (Product p: products) {
-            if(p.getModel().equals(model)) {
+            if (p.getModel().equals(model)) {
                 ConsoleHelper.writeMessage(p.toString());
             }
         }
     }
 
-    private void getProductByMaker() {
+    protected void getProductByMaker() {
         ConsoleHelper.writeMessage("Введите производителя выбранной категории товара");
         String maker = ConsoleHelper.readString();
         for (Product p: products) {
@@ -79,7 +90,7 @@ public class ReadCommand implements Command {
         }
     }
 
-    private void getProductByPrice() {
+    protected void getProductByPrice() {
         ConsoleHelper.writeMessage("Укажите ценовой диапазон (первое значение - \"от включительно\", " +
                 "второе - \"до включительно\")");
         int from = ConsoleHelper.readInt();
@@ -91,4 +102,7 @@ public class ReadCommand implements Command {
         }
     }
 
+    public ArrayList<Product> getProducts() {
+        return products;
+    }
 }

@@ -9,4 +9,8 @@ public class ClientGuiView {
     private void initView() {
         //
     }
+
+    public void notifyConnectionStatusChanged(boolean clientConnected) {
+        //
+    }
 }

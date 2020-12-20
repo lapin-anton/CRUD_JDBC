@@ -1,9 +1,12 @@
 import product.*;
 
 import java.io.IOException;
-import java.sql.*;
 
 public class UpdateCommand implements Command {
+
+    private Result result;
+    private boolean isDone = false;
+
     @Override
     public void execute() {
         try {
@@ -20,6 +23,7 @@ public class UpdateCommand implements Command {
                     break;
                 }
             }
+            isDone = true;
         } catch (Exception e) {
             ExceptionHandler.log(e);
         }
@@ -32,7 +36,7 @@ public class UpdateCommand implements Command {
         Order order = new Order(CommandType.SINGLE_READ, types[prod_type], modelForUpdate);
         Connector connector = Client.getConnector();
         connector.clientSend(order);
-        Result result = connector.clientReceive();
+        result = connector.clientReceive();
         if (result.getUpdateStatus().equals("OK")) {
             product = result.getProductList().get(0);
         } else {
@@ -105,5 +109,15 @@ public class UpdateCommand implements Command {
     private String getModelForUpdate() {
         ConsoleHelper.writeMessage("Укажите модель товара, данные которой необходимо изменить:");
         return ConsoleHelper.readString();
+    }
+
+    @Override
+    public boolean isDone() {
+        return isDone;
+    }
+
+    @Override
+    public Result getResult() {
+        return result;
     }
 }

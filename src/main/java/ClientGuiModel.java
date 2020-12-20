@@ -1,11 +1,13 @@
-public class ClientGuiModel {
-    private String newMessage;
+import product.ProductType;
 
-    public String getNewMessage() {
-        return newMessage;
+public class ClientGuiModel {
+    private Result newResult;
+
+    public Result getNewResult() {
+        return newResult;
     }
 
-    public void setNewMessage(String newMessage) {
-        this.newMessage = newMessage;
+    public void setNewResult(Result newResult) {
+        this.newResult = newResult;
     }
 }

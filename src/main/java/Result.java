@@ -30,4 +30,8 @@ public class Result implements Serializable {
     public String getUpdateStatus() {
         return updateStatus;
     }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
 }

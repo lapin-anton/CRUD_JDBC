@@ -3,6 +3,10 @@ import product.*;
 import java.io.IOException;
 
 public class CreateCommand implements Command {
+
+    private Result result;
+    private boolean isDone = false;
+
     @Override
     public void execute() {
         try {
@@ -18,6 +22,7 @@ public class CreateCommand implements Command {
                 } else
                     break;
             }
+            isDone = true;
         } catch (Exception e) {
             ExceptionHandler.log(e);
         }
@@ -36,7 +41,7 @@ public class CreateCommand implements Command {
         Order order = new Order(types[prod_type], product);
         Connector connector = Client.getConnector();
         connector.clientSend(order);
-        Result result = connector.clientReceive();
+        result = connector.clientReceive();
         ConsoleHelper.writeMessage(result.getUpdateStatus());
     }
 
@@ -88,5 +93,15 @@ public class CreateCommand implements Command {
         ConsoleHelper.writeMessage("Скорость привода CD-дисков:");
         String cd = ConsoleHelper.readString();
         return new PC(0, model, maker, price,speed, hd, ram, cd);
+    }
+
+    @Override
+    public boolean isDone() {
+        return isDone;
+    }
+
+    @Override
+    public Result getResult() {
+        return result;
     }
 }
