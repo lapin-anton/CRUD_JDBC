@@ -30,7 +30,7 @@ public class Client {
         client.run();
     }
 
-    private void run() {
+    protected void run() {
         SocketThread socketThread = new SocketThread();
         socketThread.start();
         try {

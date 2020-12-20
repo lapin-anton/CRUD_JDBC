@@ -7,7 +7,6 @@ import java.sql.SQLException;
 
 public class Server {
 
-
     private static Settings settings;
     private static DBManager dbManager;
 
