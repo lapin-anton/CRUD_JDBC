@@ -1,3 +1,4 @@
+import product.Product;
 import product.ProductType;
 
 public class QuerySet {
@@ -7,7 +8,10 @@ public class QuerySet {
     private String criteriaValue;
     private int minPriceValue;
     private int maxPriceValue;
-    //
+
+    // модель для запроса на создание
+    private Product product;
+
     public ProductType getProductType() {
         return productType;
     }
@@ -46,5 +50,13 @@ public class QuerySet {
 
     public void setMaxPriceValue(int maxPriceValue) {
         this.maxPriceValue = maxPriceValue;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
     }
 }

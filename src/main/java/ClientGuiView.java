@@ -6,6 +6,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class ClientGuiView {
     private final ClientGuiController controller;
@@ -18,6 +21,12 @@ public class ClientGuiView {
         }
     }
 
+    private static final String NOT_SELECTED = "-не выбрано-";
+    //типы товаров для выпадающего списка
+    private final String[] cbProdTypesNames = {"ПК", "Ноутбуки", "Принтеры"};
+    //критерии поиска для выпадающего списка
+    private final String[] cbCategoryNames = {"по модели", "по компании", "по цене"};
+    // наименования колонок таблиц с результатами запросов
     private final Object[] PCColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Память ЖД",
             "Оперативная память", "Скорость CD-привода"};
     private final Object[] LaptopColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Память ЖД",
@@ -26,6 +35,10 @@ public class ClientGuiView {
             "Цветная печать"};
     private final Object[][] emptyList = {{"По Вашему запросу ничего не найдено"}};
     private final Object[] defaultListColumn = {"Результат обработки запроса"};
+    // картинки на кнопках на панели инструментов
+    private static final String CREATE_ICON = "./src/main/resources/images/create.png";
+    private static final String UPDATE_ICON = "./src/main/resources/images/update.png";
+    private static final String DELETE_ICON = "./src/main/resources/images/delete.png";
 
     private JFrame frame = new JFrame("Компания оргтехники");
     // меню приложения
@@ -40,6 +53,8 @@ public class ClientGuiView {
     private JMenu helpMenu = new JMenu("Помощь");
     private JMenuItem about = new JMenuItem("О программе");
     // панель с кнопками действий
+    private JToolBar toolBar = new JToolBar();
+    private JPanel toolPanel;
     // боковая панель фильтров поиска
     private JPanel filterPanel = new JPanel();
     private JLabel productTypeLbl = new JLabel("Выберите тип товара:");
@@ -77,14 +92,26 @@ public class ClientGuiView {
         // добавляем главное меню
         frame.setJMenuBar(menuBar);
 
+        toolBar.add((Action) new CreateAction());
+        toolBar.add((Action) new UpdateAction());
+        toolBar.add((Action) new DeleteAction());
+        toolBar.setFloatable(false);
+        // Панель с горизонтальным расположением компонентов
+        BoxLayoutUtils blUtils = new BoxLayoutUtils();
+        toolPanel = blUtils.createHorizontalPanel();
+        toolPanel.add(toolBar);
+        toolPanel.add(Box.createHorizontalStrut(32));
+        //добавляем панель инструментов
+        frame.getContentPane().add(toolPanel, BorderLayout.NORTH);
+
         // добавляем боковую панель с фильтрами
         filterPanel.setBackground(Color.GRAY);
         filterPanel.setLayout(new GridLayout(15, 1));
         filterPanel.add(productTypeLbl);
-        cbProductModel.addElement("-не выбрано-");
-        cbProductModel.addElement("ПК");
-        cbProductModel.addElement("Ноутбуки");
-        cbProductModel.addElement("Принтеры");
+        cbProductModel.addElement(NOT_SELECTED);
+        cbProductModel.addElement(cbProdTypesNames[0]);
+        cbProductModel.addElement(cbProdTypesNames[1]);
+        cbProductModel.addElement(cbProdTypesNames[2]);
         productTypes.setModel(cbProductModel);
         productTypes.setSelectedIndex(0);
         productTypes.addActionListener(new SelectProductListener());
@@ -92,10 +119,10 @@ public class ClientGuiView {
 
         criteriaLbl.setVisible(false);
         filterPanel.add(criteriaLbl);
-        cbCriteriaModel.addElement("-не выбрано-");
-        cbCriteriaModel.addElement("по модели");
-        cbCriteriaModel.addElement("по производителю");
-        cbCriteriaModel.addElement("по цене");
+        cbCriteriaModel.addElement(NOT_SELECTED);
+        cbCriteriaModel.addElement(cbCategoryNames[0]);
+        cbCriteriaModel.addElement(cbCategoryNames[1]);
+        cbCriteriaModel.addElement(cbCategoryNames[2]);
         criteria.setModel(cbCriteriaModel);
         criteria.setSelectedIndex(0);
         criteria.addActionListener(new SelectCriteriaListener());
@@ -280,4 +307,224 @@ public class ClientGuiView {
         }
     }
 
+    private class CreateAction extends Component implements Action {
+
+        private HashMap<String, Object> values = new HashMap<>();
+
+        public CreateAction() {
+            putValue(AbstractAction.SMALL_ICON, new ImageIcon(CREATE_ICON));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ProductType[] types = ProductType.values();
+            Object selected = JOptionPane.showInputDialog(
+                    frame,
+                    "Выберите тип товара, который необходимо добавить:",
+                    "Выбор типа товара",
+                    JOptionPane.QUESTION_MESSAGE,
+                    new ImageIcon(CREATE_ICON), cbProdTypesNames, cbProdTypesNames[0]);
+            int prod_type = 0;
+            if(selected != null) {
+                String s = (String) selected;
+                for (int i = 0; i < cbProdTypesNames.length; i++) {
+                    if(s.equals(cbProdTypesNames[i])) {
+                        prod_type = ++i;
+                        break;
+                    }
+                }
+            }
+
+            showCreateProductDialog(types[prod_type]);
+        }
+
+        private void showCreateProductDialog(ProductType type) {
+            final Object[] columnNames;
+            String prodName = null;
+            switch (type) {
+                case PC: columnNames = PCColumnNames;
+                    prodName = "ПК";
+                    break;
+                case LAPTOP: columnNames = LaptopColumnNames;
+                    prodName = "ноутбука";
+                    break;
+                case PRINTER: columnNames = PrinterColumnNames;
+                    prodName = "принтера";
+                    break;
+                default:
+                    columnNames = new Object[0];
+                    prodName = "продукта";
+            }
+            Object[][] data = new Object[1][columnNames.length];
+            JDialog dialog = new JDialog(frame, String.format("Добавление %s в базу", prodName), true);
+            JTable table = new JTable(data, columnNames);
+            JPanel btnPanel = new BoxLayoutUtils().createHorizontalPanel();
+            JButton okBtn = new JButton("ОК");
+            okBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    boolean isFullEdited = true;
+                    Object[][] newData = new Object[1][columnNames.length];
+                    for (int i = 0; i < newData[0].length; i++) {
+                        newData[0][i] = table.getValueAt(0, i);
+                        if(newData[0][i] == null) {
+                            isFullEdited = false;
+                            break;
+                        }
+                    }
+                    if(isFullEdited) {
+                        Product product = null;
+                        QuerySet set = new QuerySet();
+                        switch (type) {
+                            case PC: product = saveNewPC(newData);
+                                break;
+                            case LAPTOP: product = saveNewLaptop(newData);
+                                break;
+                            case PRINTER: product = saveNewPrinter(newData);
+                        }
+                        set.setProductType(type);
+                        set.setProduct(product);
+                        controller.sendCreateQuery(set);
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog,
+                                "Заполнены не все ячейки таблицы",
+                                "Сообщение об ошибке", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
+            JButton cancelBtn = new JButton("Cancel");
+            cancelBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dialog.dispose();
+                }
+            });
+            table.setEditingRow(0);
+            dialog.getContentPane().add(new JScrollPane(table), BorderLayout.NORTH);
+            btnPanel.add(Box.createHorizontalStrut(50));
+            btnPanel.add(okBtn);
+            btnPanel.add(cancelBtn);
+            dialog.getContentPane().add(btnPanel, BorderLayout.SOUTH);
+            dialog.pack();
+            dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            dialog.setVisible(true);
+        }
+
+        private Product saveNewPrinter(Object[][] data) {
+            String model = (String) data[0][1];
+            String maker = (String) data[0][2];
+            int price = Integer.parseInt((String) data[0][3]);
+            String type = (String) data[0][4];
+            String color = (String) data[0][5];
+            return new Printer(0, model, maker, price, type, color);
+        }
+
+        private Product saveNewLaptop(Object[][] data) {
+            String model = (String) data[0][1];
+            String maker = (String) data[0][2];
+            int price = Integer.parseInt((String) data[0][3]);
+            int speed = Integer.parseInt((String) data[0][4]);
+            int hd = Integer.parseInt((String) data[0][5]);
+            int ram = Integer.parseInt((String) data[0][6]);
+            int screen = Integer.parseInt((String) data[0][7]);
+            return new Laptop(0, model, maker, price, speed, hd, ram, screen);
+        }
+
+        private PC saveNewPC(Object[][] data) {
+            String model = (String) data[0][1];
+            String maker = (String) data[0][2];
+            int price = Integer.parseInt((String) data[0][3]);
+            int speed = Integer.parseInt((String) data[0][4]);
+            int hd = Integer.parseInt((String) data[0][5]);
+            int ram = Integer.parseInt((String) data[0][6]);
+            String cd = (String) data[0][7];
+            return new PC(0, model, maker, price, speed, hd, ram, cd);
+        }
+
+        @Override
+        public Object getValue(String key) {
+            return this.values.get(key);
+        }
+
+        @Override
+        public void putValue(String key, Object value) {
+            this.values.put(key, value);
+        }
+    }
+
+    private class UpdateAction extends Component implements Action {
+
+        private HashMap<String, Object> values = new HashMap<>();
+
+        public UpdateAction() {
+            putValue(AbstractAction.SMALL_ICON, new ImageIcon(UPDATE_ICON));
+        }
+
+        @Override
+        public Object getValue(String key) {
+            return this.values.get(key);
+        }
+
+        @Override
+        public void putValue(String key, Object value) {
+            this.values.put(key, value);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //
+        }
+    }
+
+    private class DeleteAction extends Component implements Action {
+
+        private HashMap<String, Object> values = new HashMap<>();
+
+        public DeleteAction() {
+            putValue(AbstractAction.SMALL_ICON, new ImageIcon(DELETE_ICON));
+        }
+
+        @Override
+        public Object getValue(String key) {
+            return this.values.get(key);
+        }
+
+        @Override
+        public void putValue(String key, Object value) {
+            this.values.put(key, value);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //
+        }
+    }
+
+    class BoxLayoutUtils {
+        // Выравнивание компонентов по оси X
+        public void setGroupAlignmentX(JComponent[] cs, float alignment) {
+            for (int i = 0; i < cs.length; i++) {
+                cs[i].setAlignmentX(alignment);
+            }
+        }
+        // Выравнивание компонентов по оси Y
+        public void setGroupAlignmentY(JComponent[] cs, float alignment) {
+            for (int i = 0; i < cs.length; i++) {
+                cs[i].setAlignmentY(alignment);
+            }
+        }
+        // Создание панели с установленным вертикальным блочным расположением
+        public JPanel createVerticalPanel() {
+            JPanel p = new JPanel();
+            p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+            return p;
+        }
+        // Создание панели с установленным горизонтальным блочным расположением
+        public JPanel createHorizontalPanel() {
+            JPanel p = new JPanel();
+            p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+            return p;
+        }
+    }
 }

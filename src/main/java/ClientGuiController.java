@@ -50,4 +50,11 @@ public class ClientGuiController extends Client {
         model = guiReadCommand.getModel();
         view.refreshTable();
     }
+
+    public void sendCreateQuery(QuerySet querySet) {
+        GuiCreateCommand createCommand = new GuiCreateCommand();
+        createCommand.execute(querySet);
+        model = createCommand.getModel();
+        view.refreshTable();
+    }
 }
