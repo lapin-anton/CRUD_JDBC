@@ -1,13 +1,11 @@
 import product.*;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Vector;
 
 public class ClientGuiView {
     private final ClientGuiController controller;
@@ -20,12 +18,14 @@ public class ClientGuiView {
         }
     }
 
-    Object[] PCColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Память ЖД",
+    private final Object[] PCColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Память ЖД",
             "Оперативная память", "Скорость CD-привода"};
-    Object[] LaptopColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Память ЖД",
+    private final Object[] LaptopColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Память ЖД",
             "Оперативная память", "Размер экрана"};
-    Object[] PrinterColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Тип печати",
+    private final Object[] PrinterColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Тип печати",
             "Цветная печать"};
+    private final Object[][] emptyList = {{"По Вашему запросу ничего не найдено"}};
+    private final Object[] defaultListColumn = {"Результат обработки запроса"};
 
     private JFrame frame = new JFrame("Компания оргтехники");
     // меню приложения
@@ -132,9 +132,9 @@ public class ClientGuiView {
     public void refreshTable() {
         ArrayList<Product> products = (ArrayList<Product>) controller.getModel().getNewResult().getProductList();
         ProductType[] types = ProductType.values();
-        Object[][] data = {{"Список пуст"}};
-        Object[] columnNames = {"Результат запроса"};
-        if (products != null) {
+        Object[][] data = emptyList;
+        Object[] columnNames = defaultListColumn;
+        if ((products != null) && (!products.isEmpty())) {
             switch (types[productTypes.getSelectedIndex()]) {
                 case PC:
                     columnNames = PCColumnNames;
@@ -150,7 +150,7 @@ public class ClientGuiView {
             }
         } else {
             String message = controller.getModel().getNewResult().getUpdateStatus();
-            data[0][0] = message;
+            if(products == null) data[0][0] = message;
         }
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
         // добавляем таблицу
@@ -273,8 +273,8 @@ public class ClientGuiView {
                 case BY_MODEL:
                 case BY_MAKER: querySet.setCriteriaValue(criteriaVal_1.getText());
                     break;
-                case BY_PRICE: querySet.setCriteriaValue(criteriaVal_1.getText());
-                    querySet.setCriteriaValue(criteriaVal_2.getText());
+                case BY_PRICE: querySet.setMinPriceValue(Integer.parseInt(criteriaVal_1.getText()));
+                    querySet.setMaxPriceValue(Integer.parseInt(criteriaVal_2.getText()));
             }
             controller.sendSearchQuery(querySet);
         }
