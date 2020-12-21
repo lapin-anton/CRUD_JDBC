@@ -43,4 +43,11 @@ public class ClientGuiController extends Client {
     public void setModel(ClientGuiModel model) {
         this.model = model;
     }
+
+    public void sendSearchQuery(QuerySet querySet) {
+        GuiReadCommand guiReadCommand = new GuiReadCommand();
+        guiReadCommand.execute(querySet);
+        model = guiReadCommand.getModel();
+        view.refreshTable();
+    }
 }

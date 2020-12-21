@@ -17,7 +17,7 @@ public class Client {
         }
     }
 
-    protected static HashMap<Integer, Command> commands = new HashMap<>();
+    private static HashMap<Integer, Command> commands = new HashMap<>();
 
     static {
         commands.put(CommandType.CREATE.ordinal(), new CreateCommand());

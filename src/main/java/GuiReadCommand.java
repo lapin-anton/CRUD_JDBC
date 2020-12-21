@@ -17,9 +17,6 @@ public class GuiReadCommand extends ReadCommand {
                 case BY_MAKER: getProductByMaker(set.getCriteriaValue());
                     break;
                 case BY_PRICE: getProductByPrice(set.getMinPriceValue(), set.getMaxPriceValue());
-                    break;
-                default:
-
             }
             guiModel = new ClientGuiModel();
             guiModel.setNewResult(result);
