@@ -57,4 +57,11 @@ public class ClientGuiController extends Client {
         model = createCommand.getModel();
         view.refreshTable();
     }
+
+    public void sendDeleteQuery(QuerySet querySet) {
+        GuiDeleteCommand deleteCommand = new GuiDeleteCommand();
+        deleteCommand.execute(querySet);
+        model = deleteCommand.getModel();
+        view.refreshTable();
+    }
 }

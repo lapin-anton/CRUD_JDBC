@@ -95,6 +95,7 @@ public class Server {
                 break;
             case DELETE: result = dbManager.deleteProduct(order);
                 break;
+            case MULTIPLE_DELETE: result = dbManager.deleteProducts(order);
         }
         return result;
     }

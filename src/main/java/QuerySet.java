@@ -1,6 +1,8 @@
 import product.Product;
 import product.ProductType;
 
+import java.util.ArrayList;
+
 public class QuerySet {
     // модель для запроса на чтение
     private ProductType productType;
@@ -9,8 +11,36 @@ public class QuerySet {
     private int minPriceValue;
     private int maxPriceValue;
 
-    // модель для запроса на создание
+    // модель для запроса на добавление
     private Product product;
+    // модель для запроса на удаление
+    private String productModel;
+    private int id;
+    private ArrayList<String> productModels; // множественное удаление
+
+    public ArrayList<String> getProductModels() {
+        return productModels;
+    }
+
+    public void setProductModels(ArrayList<String> productModels) {
+        this.productModels = productModels;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getProductModel() {
+        return productModel;
+    }
+
+    public void setProductModel(String productModel) {
+        this.productModel = productModel;
+    }
 
     public ProductType getProductType() {
         return productType;

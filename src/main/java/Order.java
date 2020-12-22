@@ -2,11 +2,13 @@ import product.Product;
 import product.ProductType;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Order implements Serializable {
     private CommandType commandType;
     private ProductType productType;
     private String model;
+    private ArrayList<String> models;
     private Product product;
 
     //Запрос на чтение
@@ -27,6 +29,12 @@ public class Order implements Serializable {
         this.commandType = CommandType.DELETE;
         this.productType = productType;
         this.model = model;
+    }
+    // запрос на множественное удаление
+    public Order(ProductType productType, ArrayList<String> models) {
+        this.commandType = CommandType.MULTIPLE_DELETE;
+        this.productType = productType;
+        this.models = models;
     }
 
     // Запрос на добавление
@@ -58,5 +66,9 @@ public class Order implements Serializable {
 
     public Product getProduct() {
         return product;
+    }
+
+    public ArrayList<String> getModels() {
+        return models;
     }
 }

@@ -358,4 +358,32 @@ public class DBManager {
         }
         return new Result(message);
     }
+
+    public Result deleteProducts(Order order) {
+        StringBuilder message = new StringBuilder("");
+        String sType = null;
+        switch (order.getProductType()) {
+            case PC: sType = "pc";
+                break;
+            case LAPTOP: sType = "laptop";
+                break;
+            case PRINTER: sType = "printer";
+        }
+        try {
+            String sql = String.format("DELETE FROM %s WHERE model=?", sType);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            for (String model: order.getModels()) {
+                statement.setString(1, model);
+                int rowsDeleted = statement.executeUpdate();
+                if (rowsDeleted > 0) {
+                    message.append(String.format("Товар модель '%s' успешно удален из базы!\n", model));
+                } else {
+                    message.append(String.format("Товар модель '%s' не был удален из базы. Возможно, его нет в базе.\n", model));
+                }
+            }
+        } catch (SQLException e) {
+            ExceptionHandler.log(e);
+        }
+        return new Result(message.toString());
+    }
 }

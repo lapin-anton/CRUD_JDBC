@@ -473,7 +473,7 @@ public class ClientGuiView {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            //
+
         }
     }
 
@@ -497,7 +497,42 @@ public class ClientGuiView {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            //
+            ArrayList<Integer> selectedRows = new ArrayList<>();
+            for(int i = 0; i < table.getRowCount(); i++) {
+                if (table.isRowSelected(i)) {
+                    selectedRows.add(i);
+                }
+            }
+            if(selectedRows.isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                        "Не выбран ни один товар из списка",
+                        "Удаление товаров", JOptionPane.WARNING_MESSAGE);
+            } else {
+                showDeleteProductDialog(selectedRows);
+            }
+        }
+
+        private void showDeleteProductDialog(ArrayList<Integer> selectedRows) {
+            ArrayList<String> delModels = new ArrayList<>();
+            ProductType[] types = ProductType.values();
+            String[] out = new String[selectedRows.size() + 1];
+            out[0] = String.format("Удалить выбранные модели %s?", productTypes.getItemAt(productTypes.getSelectedIndex()));
+            int i = 1;
+            for (Integer row: selectedRows) {
+                out[i] = (String) table.getValueAt(row, 1);
+                ++i;
+            }
+            int answer = JOptionPane.showConfirmDialog(frame, out, "Удаление товаров", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+            if(answer == 0) {
+                for (int j = 1; j < out.length; j++) {
+                    delModels.add(out[j]);
+                }
+                QuerySet set = new QuerySet();
+                set.setProductType(types[productTypes.getSelectedIndex()]);
+                set.setProductModels(delModels);
+                controller.sendDeleteQuery(set);
+            }
         }
     }
 
