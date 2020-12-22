@@ -2,6 +2,7 @@ import product.Product;
 import product.ProductType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class QuerySet {
     // модель для запроса на чтение
@@ -17,6 +18,16 @@ public class QuerySet {
     private String productModel;
     private int id;
     private ArrayList<String> productModels; // множественное удаление
+    // модель для запроса на обновление
+    private HashMap<String, Product> products;
+
+    public HashMap<String, Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(HashMap<String, Product> products) {
+        this.products = products;
+    }
 
     public ArrayList<String> getProductModels() {
         return productModels;

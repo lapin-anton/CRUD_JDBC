@@ -3,6 +3,7 @@ import product.ProductType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Order implements Serializable {
     private CommandType commandType;
@@ -10,6 +11,7 @@ public class Order implements Serializable {
     private String model;
     private ArrayList<String> models;
     private Product product;
+    private HashMap<String, Product> products;
 
     //Запрос на чтение
     public Order(ProductType productType) {
@@ -51,6 +53,12 @@ public class Order implements Serializable {
         this.model = model;
         this.product = product;
     }
+    // запрос на множественное обновление
+    public Order(ProductType productType, HashMap<String, Product> products) {
+        this.commandType = CommandType.MULTIPLE_UPDATE;
+        this.productType = productType;
+        this.products = products;
+    }
 
     public CommandType getCommandType() {
         return commandType;
@@ -70,5 +78,9 @@ public class Order implements Serializable {
 
     public ArrayList<String> getModels() {
         return models;
+    }
+
+    public HashMap<String, Product> getProducts() {
+        return products;
     }
 }

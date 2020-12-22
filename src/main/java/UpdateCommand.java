@@ -29,7 +29,7 @@ public class UpdateCommand implements Command {
         }
     }
 
-    private void updateProduct(int prod_type) throws IOException, ClassNotFoundException {
+    protected void updateProduct(int prod_type) throws IOException, ClassNotFoundException {
         Product product = null;
         ProductType[] types = ProductType.values();
         String modelForUpdate = getModelForUpdate();

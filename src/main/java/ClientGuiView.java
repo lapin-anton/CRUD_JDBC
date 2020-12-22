@@ -473,7 +473,142 @@ public class ClientGuiView {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            ArrayList<Integer> selectedRows = new ArrayList<>();
+            for(int i = 0; i < table.getRowCount(); i++) {
+                if (table.isRowSelected(i)) {
+                    selectedRows.add(i);
+                }
+            }
+            if(selectedRows.isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                        "Не выбран ни один товар из списка",
+                        "Изменение данных о товарах", JOptionPane.WARNING_MESSAGE);
+            } else {
+                showUpdateProductDialog(selectedRows);
+            }
+        }
 
+        private void showUpdateProductDialog(ArrayList<Integer> selectedRows) {
+            ProductType[] types = ProductType.values();
+            final Object[] columnNames;
+            final Object[][] data;
+            final Object[][] backUpData;
+            switch (types[productTypes.getSelectedIndex()]) {
+                case PC: columnNames = PCColumnNames;
+                    break;
+                case LAPTOP: columnNames = LaptopColumnNames;
+                    break;
+                case PRINTER: columnNames = PrinterColumnNames;
+                    break;
+                default: columnNames = new Object[0];
+            }
+            data = new Object[selectedRows.size()][columnNames.length];
+            backUpData = new Object[selectedRows.size()][columnNames.length];
+            for (int i = 0; i < selectedRows.size(); i++) {
+                for (int j = 0; j < data[i].length; j++) {
+                    data[i][j] = table.getValueAt(selectedRows.get(i), j);
+                    backUpData[i][j] = table.getValueAt(selectedRows.get(i), j);
+                }
+            }
+            JDialog dialog = new JDialog(frame, "Обновление данных товара в базе", true);
+            JTable updTable = new JTable(data, columnNames);
+            for (int i = 0; i < data.length; i++) {
+                updTable.setEditingRow(i);
+            }
+            JPanel btnPanel = new BoxLayoutUtils().createHorizontalPanel();
+            JButton okBtn = new JButton("Обновить");
+            okBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    boolean isEdited = false;
+                    Object[][] newData = new Object[selectedRows.size()][columnNames.length];
+                    for (int i = 0; i < newData.length; i++) {
+                        for (int j = 0; j < newData[i].length; j++) {
+                            newData[i][j] = String.valueOf(updTable.getValueAt(i, j));
+                            if(!newData[i][j].equals(String.valueOf(backUpData[i][j]))) {
+                                isEdited = true;
+                            }
+                        }
+                    }
+                    if(isEdited) {
+                        HashMap<String, Product> map = new HashMap<>();
+                        QuerySet set = new QuerySet();
+                        switch (types[productTypes.getSelectedIndex()]) {
+                            case PC: map = getUpdPCs(backUpData, newData);
+                                break;
+                            case LAPTOP: map = getUpdLaptops(backUpData, newData);
+                                break;
+                            case PRINTER: map = getUpdPrinters(backUpData, newData);
+                        }
+                        set.setProductType(types[productTypes.getSelectedIndex()]);
+                        set.setProducts(map);
+                        controller.sendUpdateQuery(set);
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog,
+                                "Не было изменено ни одного параметра товаров",
+                                "Информация", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            });
+            JButton cancelBtn = new JButton("Cancel");
+            cancelBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dialog.dispose();
+                }
+            });
+            dialog.getContentPane().add(new JScrollPane(updTable), BorderLayout.NORTH);
+            btnPanel.add(Box.createHorizontalStrut(50));
+            btnPanel.add(okBtn);
+            btnPanel.add(cancelBtn);
+            dialog.getContentPane().add(btnPanel, BorderLayout.SOUTH);
+            dialog.pack();
+            dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            dialog.setVisible(true);
+        }
+
+        private HashMap<String, Product> getUpdPrinters(Object[][] backUpData, Object[][] newData) {
+            HashMap<String, Product> result = new HashMap<>();
+            for (int i = 0; i < newData.length; i++) {
+                String model = (String) newData[i][1];
+                String maker = (String) newData[i][2];
+                int price = Integer.parseInt((String) newData[i][3]);
+                String type = (String) newData[i][4];
+                String color = (String) newData[i][5];
+                result.put((String) backUpData[i][1], new Printer(0, model, maker, price, type, color));
+            }
+            return result;
+        }
+
+        private HashMap<String, Product> getUpdLaptops(Object[][] backUpData, Object[][] newData) {
+            HashMap<String, Product> result = new HashMap<>();
+            for (int i = 0; i < newData.length; i++) {
+                String model = (String) newData[i][1];
+                String maker = (String) newData[i][2];
+                int price = Integer.parseInt((String) newData[i][3]);
+                int speed = Integer.parseInt((String) newData[i][4]);
+                int hd = Integer.parseInt((String) newData[i][5]);
+                int ram = Integer.parseInt((String) newData[i][6]);
+                int screen = Integer.parseInt((String) newData[i][7]);
+                result.put((String) backUpData[i][1], new Laptop(0, model, maker, price, speed, hd, ram, screen));
+            }
+            return result;
+        }
+
+        private HashMap<String, Product> getUpdPCs(Object[][] backUpData, Object[][] newData) {
+            HashMap<String, Product> result = new HashMap<>();
+            for (int i = 0; i < newData.length; i++) {
+                String model = (String) newData[i][1];
+                String maker = (String) newData[i][2];
+                int price = Integer.parseInt((String) newData[i][3]);
+                int speed = Integer.parseInt((String) newData[i][4]);
+                int hd = Integer.parseInt((String) newData[i][5]);
+                int ram = Integer.parseInt((String) newData[i][6]);
+                String cd = (String) newData[i][7];
+                result.put((String) backUpData[i][1], new PC(0, model, maker, price, speed, hd, ram, cd));
+            }
+            return result;
         }
     }
 

@@ -2,6 +2,7 @@ import product.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class DBManager {
 
@@ -266,6 +267,25 @@ public class DBManager {
             ExceptionHandler.log(e);
         }
         return new Result(message);
+    }
+
+    public Result updateProducts(Order order) {
+        StringBuilder message = new StringBuilder("");
+        try {
+            for (Map.Entry<String, Product> pair: order.getProducts().entrySet()) {
+                switch (order.getProductType()) {
+                    case PC: message.append(updatePC(pair.getValue(), pair.getKey()));
+                        break;
+                    case LAPTOP: message.append(updateLaptop(pair.getValue(), pair.getKey()));
+                        break;
+                    case PRINTER: message.append(updatePrinter(pair.getValue(), pair.getKey()));
+                }
+                message.append("\n");
+            }
+        } catch (SQLException e) {
+            ExceptionHandler.log(e);
+        }
+        return new Result(message.toString());
     }
 
     private String updatePrinter(Product product, String model) throws SQLException {
