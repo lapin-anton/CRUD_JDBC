@@ -11,6 +11,27 @@ import java.util.HashMap;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class ClientGuiView {
+
+    private static final int COLUMN_WIDTH = 120;
+    private static final String NOT_SELECTED = "-не выбрано-";
+    //типы товаров для выпадающего списка
+    private final String[] cbProdTypesNames = {"ПК", "Ноутбуки", "Принтеры"};
+    //критерии поиска для выпадающего списка
+    private final String[] cbCategoryNames = {"по модели", "по производителю", "по цене"};
+    // наименования колонок таблиц с результатами запросов
+    private final Object[] PCColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Объем памяти ПЗУ",
+            "Объем памяти ОЗУ", "Скорость CD-привода"};
+    private final Object[] LaptopColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Объем памяти ПЗУ",
+            "Объем памяти ОЗУ", "Размер экрана"};
+    private final Object[] PrinterColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Тип печати",
+            "Цветная печать"};
+    private final Object[][] emptyList = {{"По Вашему запросу ничего не найдено"}};
+    private final Object[] defaultListColumn = {"Результат обработки запроса"};
+    // картинки на кнопках на панели инструментов
+    private static final String CREATE_ICON = "./src/main/resources/images/icon32x32/create.png";
+    private static final String UPDATE_ICON = "./src/main/resources/images/icon32x32/update.png";
+    private static final String DELETE_ICON = "./src/main/resources/images/icon32x32/delete.png";
+
     private final ClientGuiController controller;
 
     static {
@@ -21,25 +42,6 @@ public class ClientGuiView {
         }
     }
 
-    private static final String NOT_SELECTED = "-не выбрано-";
-    //типы товаров для выпадающего списка
-    private final String[] cbProdTypesNames = {"ПК", "Ноутбуки", "Принтеры"};
-    //критерии поиска для выпадающего списка
-    private final String[] cbCategoryNames = {"по модели", "по компании", "по цене"};
-    // наименования колонок таблиц с результатами запросов
-    private final Object[] PCColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Память ЖД",
-            "Оперативная память", "Скорость CD-привода"};
-    private final Object[] LaptopColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Память ЖД",
-            "Оперативная память", "Размер экрана"};
-    private final Object[] PrinterColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Тип печати",
-            "Цветная печать"};
-    private final Object[][] emptyList = {{"По Вашему запросу ничего не найдено"}};
-    private final Object[] defaultListColumn = {"Результат обработки запроса"};
-    // картинки на кнопках на панели инструментов
-    private static final String CREATE_ICON = "./src/main/resources/images/create.png";
-    private static final String UPDATE_ICON = "./src/main/resources/images/update.png";
-    private static final String DELETE_ICON = "./src/main/resources/images/delete.png";
-
     private JFrame frame = new JFrame("Компания оргтехники");
     // меню приложения
     private JMenuBar menuBar = new JMenuBar();
@@ -48,7 +50,10 @@ public class ClientGuiView {
     private JMenuItem save = new JMenuItem("Сохранить");
     private JMenuItem saveAs = new JMenuItem("Сохранить как...");
     private JMenuItem exit = new JMenuItem("Выход");
-    private JMenu editMenu = new JMenu("Редактировать");
+    private JMenu actionMenu = new JMenu("Действия");
+    private JMenuItem createProductMI = new JMenuItem("Добавить новый товар...");
+    private JMenuItem updateProductMI = new JMenuItem("Обновить данные товара(ов)...");
+    private JMenuItem deleteProductMI = new JMenuItem("Удалить товар(ы)...");
     private JMenu settingsMenu = new JMenu("Настройки");
     private JMenu helpMenu = new JMenu("Помощь");
     private JMenuItem about = new JMenuItem("О программе");
@@ -80,12 +85,25 @@ public class ClientGuiView {
         fileMenu.add(newFile);
         fileMenu.add(save);
         fileMenu.add(saveAs);
+        exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+            }
+        });
         fileMenu.add(exit);
+
+        createProductMI.addActionListener(new CreateAction());
+        actionMenu.add(createProductMI);
+        updateProductMI.addActionListener(new UpdateAction());
+        actionMenu.add(updateProductMI);
+        deleteProductMI.addActionListener(new DeleteAction());
+        actionMenu.add(deleteProductMI);
 
         helpMenu.add(about);
 
         menuBar.add(fileMenu);
-        menuBar.add(editMenu);
+        menuBar.add(actionMenu);
         menuBar.add(settingsMenu);
         menuBar.add(helpMenu);
         // добавляем главное меню
@@ -145,13 +163,16 @@ public class ClientGuiView {
         // добавляем таблицу
         frame.getContentPane().add(new JScrollPane(table));
         frame.pack();
+        Dimension foolScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setSize (foolScreenSize);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
 
     public void notifyConnectionStatusChanged(boolean clientConnected) {
-
+        controller.clientConnected = clientConnected;
     }
+
     // обновляем таблицу
     public void refreshTable() {
         ArrayList<Product> products = (ArrayList<Product>) controller.getModel().getNewResult().getProductList();
@@ -179,8 +200,6 @@ public class ClientGuiView {
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
         // добавляем таблицу
         table.setModel(tableModel);
-        frame.setSize(filterPanel.getWidth() + table.getColumnCount() * 120, frame.getHeight());
-        frame.repaint();
     }
 
     private Object[][] fillPCData(ArrayList<Product> products) {
@@ -256,7 +275,6 @@ public class ClientGuiView {
     private class SelectCriteriaListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int prod_type = productTypes.getSelectedIndex();
             int index = criteria.getSelectedIndex();
             switch (index) {
                 case 1: criteria_1lbl.setText("Введите название модели:");
@@ -356,7 +374,7 @@ public class ClientGuiView {
             JDialog dialog = new JDialog(frame, String.format("Добавление %s в базу", prodName), true);
             JTable table = new JTable(data, columnNames);
             JPanel btnPanel = new BoxLayoutUtils().createHorizontalPanel();
-            JButton okBtn = new JButton("ОК");
+            JButton okBtn = new JButton("Добавить");
             okBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -390,7 +408,7 @@ public class ClientGuiView {
                     }
                 }
             });
-            JButton cancelBtn = new JButton("Cancel");
+            JButton cancelBtn = new JButton("Отмена");
             cancelBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -399,11 +417,14 @@ public class ClientGuiView {
             });
             table.setEditingRow(0);
             dialog.getContentPane().add(new JScrollPane(table), BorderLayout.NORTH);
-            btnPanel.add(Box.createHorizontalStrut(50));
+            int tableWidth = table.getColumnCount() * COLUMN_WIDTH;
+            int strut = tableWidth - okBtn.getPreferredSize().width - cancelBtn.getPreferredSize().width - 20;
+            btnPanel.add(Box.createHorizontalStrut(strut));
             btnPanel.add(okBtn);
             btnPanel.add(cancelBtn);
             dialog.getContentPane().add(btnPanel, BorderLayout.SOUTH);
             dialog.pack();
+            dialog.setSize(tableWidth, dialog.getHeight());
             dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
             dialog.setVisible(true);
         }
@@ -556,11 +577,14 @@ public class ClientGuiView {
                 }
             });
             dialog.getContentPane().add(new JScrollPane(updTable), BorderLayout.NORTH);
-            btnPanel.add(Box.createHorizontalStrut(50));
+            int tableWidth = updTable.getColumnCount() * COLUMN_WIDTH;
+            int strut = tableWidth - okBtn.getPreferredSize().width - cancelBtn.getPreferredSize().width - 20;
+            btnPanel.add(Box.createHorizontalStrut(strut));
             btnPanel.add(okBtn);
             btnPanel.add(cancelBtn);
             dialog.getContentPane().add(btnPanel, BorderLayout.SOUTH);
             dialog.pack();
+            dialog.setSize(tableWidth, dialog.getHeight());
             dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
             dialog.setVisible(true);
         }

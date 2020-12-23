@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class Client {
 
     protected static Connector connector;
-    private volatile boolean clientConnected = false;
+    protected volatile boolean clientConnected = false;
     private static Settings settings;
     private Command currentCommand;
 
