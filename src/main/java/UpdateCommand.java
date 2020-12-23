@@ -5,7 +5,6 @@ import java.io.IOException;
 public class UpdateCommand implements Command {
 
     private Result result;
-    private boolean isDone = false;
 
     @Override
     public void execute() {
@@ -23,7 +22,6 @@ public class UpdateCommand implements Command {
                     break;
                 }
             }
-            isDone = true;
         } catch (Exception e) {
             ExceptionHandler.log(e);
         }
@@ -109,11 +107,6 @@ public class UpdateCommand implements Command {
     private String getModelForUpdate() {
         ConsoleHelper.writeMessage("Укажите модель товара, данные которой необходимо изменить:");
         return ConsoleHelper.readString();
-    }
-
-    @Override
-    public boolean isDone() {
-        return isDone;
     }
 
     @Override

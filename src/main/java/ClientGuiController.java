@@ -44,31 +44,19 @@ public class ClientGuiController extends Client {
         this.model = model;
     }
 
-    public void sendSearchQuery(QuerySet querySet) {
-        GuiReadCommand guiReadCommand = new GuiReadCommand();
-        guiReadCommand.execute(querySet);
-        model = guiReadCommand.getModel();
-        view.refreshTable();
-    }
-
-    public void sendCreateQuery(QuerySet querySet) {
-        GuiCreateCommand createCommand = new GuiCreateCommand();
-        createCommand.execute(querySet);
-        model = createCommand.getModel();
-        view.refreshTable();
-    }
-
-    public void sendDeleteQuery(QuerySet querySet) {
-        GuiDeleteCommand deleteCommand = new GuiDeleteCommand();
-        deleteCommand.execute(querySet);
-        model = deleteCommand.getModel();
-        view.refreshTable();
-    }
-
-    public void sendUpdateQuery(QuerySet querySet) {
-        GuiUpdateCommand updateCommand = new GuiUpdateCommand();
-        updateCommand.execute(querySet);
-        model = updateCommand.getModel();
+    public void sendQuery(CommandType commandType, QuerySet querySet) {
+        Command command = null;
+        switch (commandType) {
+            case CREATE: command = new GuiCreateCommand(querySet);
+                break;
+            case READ: command = new GuiReadCommand(querySet);
+                break;
+            case UPDATE: command = new GuiUpdateCommand(querySet);
+                break;
+            case DELETE: command = new GuiDeleteCommand(querySet);
+        }
+        command.execute();
+        model.setNewResult(command.getResult());
         view.refreshTable();
     }
 }

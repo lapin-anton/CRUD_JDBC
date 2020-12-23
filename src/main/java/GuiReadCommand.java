@@ -4,22 +4,27 @@ import product.ProductType;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class GuiReadCommand extends ReadCommand {
+public class GuiReadCommand implements Command {
 
-    private ClientGuiModel guiModel;
+    private Result result;
+    private QuerySet querySet;
+    private ArrayList<Product> products;
 
-    public void execute(QuerySet set) {
+    public GuiReadCommand(QuerySet querySet) {
+        this.querySet = querySet;
+    }
+
+    @Override
+    public void execute() {
         try {
-            extractAllProductsByType(set.getProductType());
-            switch (set.getCriteria()) {
-                case BY_MODEL: getProductByModel(set.getCriteriaValue());
+            extractAllProductsByType(querySet.getProductType());
+            switch (querySet.getCriteria()) {
+                case BY_MODEL: getProductByModel(querySet.getCriteriaValue());
                     break;
-                case BY_MAKER: getProductByMaker(set.getCriteriaValue());
+                case BY_MAKER: getProductByMaker(querySet.getCriteriaValue());
                     break;
-                case BY_PRICE: getProductByPrice(set.getMinPriceValue(), set.getMaxPriceValue());
+                case BY_PRICE: getProductByPrice(querySet.getMinPriceValue(), querySet.getMaxPriceValue());
             }
-            guiModel = new ClientGuiModel();
-            guiModel.setNewResult(result);
         } catch (IOException | ClassNotFoundException e) {
             ExceptionHandler.log(e);
         }
@@ -60,7 +65,7 @@ public class GuiReadCommand extends ReadCommand {
         result.setProducts(list);
     }
 
-    public ClientGuiModel getModel() {
-        return guiModel;
+    public Result getResult() {
+        return result;
     }
 }

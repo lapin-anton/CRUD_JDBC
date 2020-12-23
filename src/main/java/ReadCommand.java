@@ -8,7 +8,6 @@ public class ReadCommand implements Command {
 
     protected ArrayList<Product> products = new ArrayList<>();
     protected Result result;
-    protected boolean isDone = false;
 
     @Override
     public void execute() {
@@ -45,7 +44,6 @@ public class ReadCommand implements Command {
                 }
                 ConsoleHelper.writeMessage("==========================");
                 products.clear();
-                isDone = true;
             }
         } catch (Exception e) {
             ExceptionHandler.log(e);
@@ -54,10 +52,6 @@ public class ReadCommand implements Command {
 
     public Result getResult() {
         return result;
-    }
-
-    public boolean isDone() {
-        return isDone;
     }
 
     protected void extractAllProductsByType(int prod_type) throws IOException, ClassNotFoundException {

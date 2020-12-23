@@ -5,7 +5,6 @@ import java.io.IOException;
 public class CreateCommand implements Command {
 
     private Result result;
-    private boolean isDone = false;
 
     @Override
     public void execute() {
@@ -22,7 +21,6 @@ public class CreateCommand implements Command {
                 } else
                     break;
             }
-            isDone = true;
         } catch (Exception e) {
             ExceptionHandler.log(e);
         }
@@ -93,11 +91,6 @@ public class CreateCommand implements Command {
         ConsoleHelper.writeMessage("Скорость привода CD-дисков:");
         String cd = ConsoleHelper.readString();
         return new PC(0, model, maker, price,speed, hd, ram, cd);
-    }
-
-    @Override
-    public boolean isDone() {
-        return isDone;
     }
 
     @Override

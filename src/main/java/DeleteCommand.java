@@ -5,7 +5,6 @@ import java.io.IOException;
 public class DeleteCommand implements Command {
 
     private Result result;
-    private boolean isDone = false;
 
     @Override
     public void execute() {
@@ -23,7 +22,6 @@ public class DeleteCommand implements Command {
                     break;
                 }
             }
-            isDone = true;
         } catch (Exception e) {
             ExceptionHandler.log(e);
         }
@@ -38,11 +36,6 @@ public class DeleteCommand implements Command {
         connector.clientSend(order);
         result = connector.clientReceive();
         ConsoleHelper.writeMessage(result.getUpdateStatus());
-    }
-
-    @Override
-    public boolean isDone() {
-        return isDone;
     }
 
     @Override

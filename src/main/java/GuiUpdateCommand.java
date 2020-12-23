@@ -1,11 +1,16 @@
 import java.io.IOException;
 
-public class GuiUpdateCommand {
+public class GuiUpdateCommand implements Command {
 
     private Result result;
-    private ClientGuiModel model = new ClientGuiModel();
+    private QuerySet querySet;
 
-    public void execute(QuerySet querySet) {
+    public GuiUpdateCommand(QuerySet querySet) {
+        this.querySet = querySet;
+    }
+
+    @Override
+    public void execute() {
         Order order = new Order(querySet.getProductType(), querySet.getProducts());
         Connector connector = Client.getConnector();
         try {
@@ -14,11 +19,9 @@ public class GuiUpdateCommand {
         } catch (IOException | ClassNotFoundException e) {
             ExceptionHandler.log(e);
         }
-        model.setNewResult(result);
     }
 
-    public ClientGuiModel getModel() {
-        return model;
+    public Result getResult() {
+        return result;
     }
-
 }

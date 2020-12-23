@@ -56,7 +56,7 @@ public class ClientGuiView {
     private JToolBar toolBar = new JToolBar();
     private JPanel toolPanel;
     // боковая панель фильтров поиска
-    private JPanel filterPanel = new JPanel();
+    private JPanel filterPanel = new JPanel(new VerticalLayout());
     private JLabel productTypeLbl = new JLabel("Выберите тип товара:");
     private JComboBox<String> productTypes = new JComboBox();
     private DefaultComboBoxModel<String> cbProductModel = new DefaultComboBoxModel<>();
@@ -64,12 +64,11 @@ public class ClientGuiView {
     private JComboBox<String> criteria = new JComboBox<>();
     private DefaultComboBoxModel<String> cbCriteriaModel = new DefaultComboBoxModel<>();
     private JLabel criteria_1lbl = new JLabel();
-    private JTextField criteriaVal_1 = new JTextField();
+    private JTextField criteriaVal_1 = new JTextField(20);
     private JLabel criteria_2lbl = new JLabel();
-    private JTextField criteriaVal_2 = new JTextField();
+    private JTextField criteriaVal_2 = new JTextField(20);
     private JButton searchBtn = new JButton("Найти");
     // таблица для результатов поиска и редактирования
-    private JPanel canvas = new JPanel();
     private JTable table = new JTable();
 
     public ClientGuiView(ClientGuiController controller) {
@@ -90,6 +89,7 @@ public class ClientGuiView {
         menuBar.add(settingsMenu);
         menuBar.add(helpMenu);
         // добавляем главное меню
+
         frame.setJMenuBar(menuBar);
 
         toolBar.add((Action) new CreateAction());
@@ -106,12 +106,11 @@ public class ClientGuiView {
 
         // добавляем боковую панель с фильтрами
         filterPanel.setBackground(Color.GRAY);
-        filterPanel.setLayout(new GridLayout(15, 1));
         filterPanel.add(productTypeLbl);
         cbProductModel.addElement(NOT_SELECTED);
-        cbProductModel.addElement(cbProdTypesNames[0]);
-        cbProductModel.addElement(cbProdTypesNames[1]);
-        cbProductModel.addElement(cbProdTypesNames[2]);
+        for (int i = 0; i < cbProdTypesNames.length; i++) {
+            cbProductModel.addElement(cbProdTypesNames[i]);
+        }
         productTypes.setModel(cbProductModel);
         productTypes.setSelectedIndex(0);
         productTypes.addActionListener(new SelectProductListener());
@@ -120,9 +119,9 @@ public class ClientGuiView {
         criteriaLbl.setVisible(false);
         filterPanel.add(criteriaLbl);
         cbCriteriaModel.addElement(NOT_SELECTED);
-        cbCriteriaModel.addElement(cbCategoryNames[0]);
-        cbCriteriaModel.addElement(cbCategoryNames[1]);
-        cbCriteriaModel.addElement(cbCategoryNames[2]);
+        for (int i = 0; i < cbCategoryNames.length; i++) {
+            cbCriteriaModel.addElement(cbCategoryNames[i]);
+        }
         criteria.setModel(cbCriteriaModel);
         criteria.setSelectedIndex(0);
         criteria.addActionListener(new SelectCriteriaListener());
@@ -143,10 +142,8 @@ public class ClientGuiView {
         filterPanel.add(searchBtn);
 
         frame.getContentPane().add(filterPanel, BorderLayout.WEST);
-
-        canvas.add(new JScrollPane(table));
-        frame.getContentPane().add(canvas, BorderLayout.CENTER);
-
+        // добавляем таблицу
+        frame.getContentPane().add(new JScrollPane(table));
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
@@ -182,7 +179,8 @@ public class ClientGuiView {
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
         // добавляем таблицу
         table.setModel(tableModel);
-        canvas.repaint();
+        frame.setSize(filterPanel.getWidth() + table.getColumnCount() * 120, frame.getHeight());
+        frame.repaint();
     }
 
     private Object[][] fillPCData(ArrayList<Product> products) {
@@ -303,7 +301,7 @@ public class ClientGuiView {
                 case BY_PRICE: querySet.setMinPriceValue(Integer.parseInt(criteriaVal_1.getText()));
                     querySet.setMaxPriceValue(Integer.parseInt(criteriaVal_2.getText()));
             }
-            controller.sendSearchQuery(querySet);
+            controller.sendQuery(CommandType.READ, querySet);
         }
     }
 
@@ -333,9 +331,8 @@ public class ClientGuiView {
                         break;
                     }
                 }
+                showCreateProductDialog(types[prod_type]);
             }
-
-            showCreateProductDialog(types[prod_type]);
         }
 
         private void showCreateProductDialog(ProductType type) {
@@ -384,12 +381,12 @@ public class ClientGuiView {
                         }
                         set.setProductType(type);
                         set.setProduct(product);
-                        controller.sendCreateQuery(set);
+                        controller.sendQuery(CommandType.CREATE, set);
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog,
                                 "Заполнены не все ячейки таблицы",
-                                "Сообщение об ошибке", JOptionPane.ERROR_MESSAGE);
+                                "Предупреждение", JOptionPane.WARNING_MESSAGE);
                     }
                 }
             });
@@ -542,12 +539,12 @@ public class ClientGuiView {
                         }
                         set.setProductType(types[productTypes.getSelectedIndex()]);
                         set.setProducts(map);
-                        controller.sendUpdateQuery(set);
+                        controller.sendQuery(CommandType.UPDATE, set);
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog,
                                 "Не было изменено ни одного параметра товаров",
-                                "Информация", JOptionPane.INFORMATION_MESSAGE);
+                                "Предупреждение", JOptionPane.WARNING_MESSAGE);
                     }
                 }
             });
@@ -640,7 +637,7 @@ public class ClientGuiView {
             }
             if(selectedRows.isEmpty()) {
                 JOptionPane.showMessageDialog(frame,
-                        "Не выбран ни один товар из списка",
+                        "Не выбран ни один товар для удаления из списка",
                         "Удаление товаров", JOptionPane.WARNING_MESSAGE);
             } else {
                 showDeleteProductDialog(selectedRows);
@@ -666,7 +663,7 @@ public class ClientGuiView {
                 QuerySet set = new QuerySet();
                 set.setProductType(types[productTypes.getSelectedIndex()]);
                 set.setProductModels(delModels);
-                controller.sendDeleteQuery(set);
+                controller.sendQuery(CommandType.DELETE, set);
             }
         }
     }
@@ -695,6 +692,64 @@ public class ClientGuiView {
             JPanel p = new JPanel();
             p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
             return p;
+        }
+    }
+
+    class VerticalLayout implements LayoutManager
+    {
+        private Dimension size = new Dimension();
+
+        // Следующие два метода не используются
+        public void addLayoutComponent   (String name, Component comp) {}
+        public void removeLayoutComponent(Component comp) {}
+
+        // Метод определения минимального размера для контейнера
+        public Dimension minimumLayoutSize(Container c) {
+            return calculateBestSize(c);
+        }
+        // Метод определения предпочтительного размера для контейнера
+        public Dimension preferredLayoutSize(Container c) {
+            return calculateBestSize(c);
+        }
+        // Метод расположения компонентов в контейнере
+        public void layoutContainer(Container container)
+        {
+            // Список компонентов
+            Component list[] = container.getComponents();
+            int currentY = 5;
+            for (int i = 0; i < list.length; i++) {
+                // Определение предпочтительного размера компонента
+                Dimension pref = list[i].getPreferredSize();
+                // Размещение компонента на экране
+                list[i].setBounds(5, currentY, pref.width, pref.height);
+                // Учитываем промежуток в 5 пикселов
+                currentY += 5;
+                // Смещаем вертикальную позицию компонента
+                currentY += pref.height;
+            }
+        }
+        // Метод вычисления оптимального размера контейнера
+        private Dimension calculateBestSize(Container c)
+        {
+            // Вычисление длины контейнера
+            Component[] list = c.getComponents();
+            int maxWidth = 0;
+            for (int i = 0; i < list.length; i++) {
+                int width = list[i].getWidth();
+                // Поиск компонента с максимальной длиной
+                if ( width > maxWidth )
+                    maxWidth = width;
+            }
+            // Размер контейнера в длину с учетом левого и правого отступа
+            size.width = maxWidth + 10;
+            // Вычисление высоты контейнера
+            int height = 0;
+            for (int i = 0; i < list.length; i++) {
+                height += 5;
+                height += list[i].getHeight();
+            }
+            size.height = height;
+            return size;
         }
     }
 }
