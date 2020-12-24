@@ -426,7 +426,6 @@ public class ClientGuiView {
             clearTable();
             int prod_type = productTypes.getSelectedIndex();
             int criteria_index = criteria.getSelectedIndex();
-            if(criteria_index < 1) return;
             ProductType[] types = ProductType.values();
             Criteria[] criteria = Criteria.values();
             QuerySet querySet = new QuerySet();
