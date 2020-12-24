@@ -9,8 +9,8 @@ public class QuerySet {
     private ProductType productType;
     private Criteria criteria;
     private String criteriaValue;
-    private int minPriceValue;
-    private int maxPriceValue;
+    private String minValue;
+    private String maxValue;
 
     // модель для запроса на добавление
     private Product product;
@@ -77,20 +77,20 @@ public class QuerySet {
         this.criteriaValue = criteriaValue;
     }
 
-    public int getMinPriceValue() {
-        return minPriceValue;
+    public String getMinValue() {
+        return minValue;
     }
 
-    public void setMinPriceValue(int minPriceValue) {
-        this.minPriceValue = minPriceValue;
+    public void setMinValue(String minPriceValue) {
+        this.minValue = minPriceValue;
     }
 
-    public int getMaxPriceValue() {
-        return maxPriceValue;
+    public String getMaxValue() {
+        return maxValue;
     }
 
-    public void setMaxPriceValue(int maxPriceValue) {
-        this.maxPriceValue = maxPriceValue;
+    public void setMaxValue(String maxValue) {
+        this.maxValue = maxValue;
     }
 
     public Product getProduct() {

@@ -13,20 +13,35 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 public class ClientGuiView {
 
     private static final int COLUMN_WIDTH = 120;
-    private static final String NOT_SELECTED = "-не выбрано-";
     //типы товаров для выпадающего списка
-    private final String[] cbProdTypesNames = {"ПК", "Ноутбуки", "Принтеры"};
-    //критерии поиска для выпадающего списка
-    private final String[] cbCategoryNames = {"по модели", "по производителю", "по цене"};
+    private final String[] PRODUCT_NAMES = {Constants.PC_NAME, Constants.LAPTOP_NAME, Constants.PRINTER_NAME};
     // наименования колонок таблиц с результатами запросов
-    private final Object[] PCColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Объем памяти ПЗУ",
-            "Объем памяти ОЗУ", "Скорость CD-привода"};
-    private final Object[] LaptopColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Скорость", "Объем памяти ПЗУ",
-            "Объем памяти ОЗУ", "Размер экрана"};
-    private final Object[] PrinterColumnNames = new String[]{"id", "Модель", "Производитель", "Цена", "Тип печати",
-            "Цветная печать"};
-    private final Object[][] emptyList = {{"По Вашему запросу ничего не найдено"}};
-    private final Object[] defaultListColumn = {"Результат обработки запроса"};
+    private final Object[] PC_COLUMNS = new String[]{Constants.ID, Constants.MODEL, Constants.MAKER,
+            Constants.PRICE, Constants.SPEED, Constants.HD, Constants.RAM, Constants.CD};
+    private final Object[] LAPTOP_COLUMNS = new String[]{Constants.ID, Constants.MODEL, Constants.MAKER,
+            Constants.PRICE, Constants.SPEED, Constants.HD, Constants.RAM, Constants.SCREEN};
+    private final Object[] PRINTER_COLUMNS = new String[]{Constants.ID, Constants.MODEL, Constants.MAKER,
+            Constants.PRICE, Constants.PRINTING_TYPE, Constants.COLOR};
+    private final Object[] EMPTY_TABLE_COLUMN = new String[]{Constants.EMPTY_LIST_COLUMN_INFO};
+    private final Object[][] EMPTY_TABLE_DATA = new Object[][]{{Constants.INVITE_TO_SEARCH}};
+    private static final ArrayList<String> MIN_MAX_VALUE_LIST = new ArrayList<>();
+    static {
+        MIN_MAX_VALUE_LIST.add(Constants.PRICE);
+        MIN_MAX_VALUE_LIST.add(Constants.SPEED);
+        MIN_MAX_VALUE_LIST.add(Constants.HD);
+        MIN_MAX_VALUE_LIST.add(Constants.RAM);
+        MIN_MAX_VALUE_LIST.add(Constants.SCREEN);
+    }
+    private static final int[] PC_CRITERIA = {Criteria.NONE.ordinal(), Criteria.BY_ID.ordinal(), Criteria.BY_MODEL.ordinal(),
+        Criteria.BY_MAKER.ordinal(), Criteria.BY_PRICE.ordinal(), Criteria.BY_SPEED.ordinal(), Criteria.BY_HD.ordinal(),
+        Criteria.BY_RAM.ordinal(), Criteria.BY_CD.ordinal()};
+    private static final int[] LAPTOP_CRITERIA = {Criteria.NONE.ordinal(), Criteria.BY_ID.ordinal(), Criteria.BY_MODEL.ordinal(),
+        Criteria.BY_MAKER.ordinal(), Criteria.BY_PRICE.ordinal(), Criteria.BY_SPEED.ordinal(), Criteria.BY_HD.ordinal(),
+        Criteria.BY_RAM.ordinal(), Criteria.BY_SCREEN.ordinal()};
+    private static final int[] PRINTER_CRITERIA = {Criteria.NONE.ordinal(), Criteria.BY_ID.ordinal(), Criteria.BY_MODEL.ordinal(),
+        Criteria.BY_MAKER.ordinal(), Criteria.BY_PRICE.ordinal(), Criteria.BY_PRINTING_TYPE.ordinal(),
+        Criteria.BY_COLOR.ordinal()};
+
     // картинки на кнопках на панели инструментов
     private static final String CREATE_ICON = "./src/main/resources/images/icon32x32/create.png";
     private static final String UPDATE_ICON = "./src/main/resources/images/icon32x32/update.png";
@@ -42,37 +57,41 @@ public class ClientGuiView {
         }
     }
 
-    private JFrame frame = new JFrame("Компания оргтехники");
+    private JFrame frame = new JFrame(Constants.COMPANY_TITLE);
     // меню приложения
     private JMenuBar menuBar = new JMenuBar();
-    private JMenu fileMenu = new JMenu("Файл");
-    private JMenuItem newFile = new JMenuItem("Новый...");
-    private JMenuItem save = new JMenuItem("Сохранить");
-    private JMenuItem saveAs = new JMenuItem("Сохранить как...");
-    private JMenuItem exit = new JMenuItem("Выход");
-    private JMenu actionMenu = new JMenu("Действия");
-    private JMenuItem createProductMI = new JMenuItem("Добавить новый товар...");
-    private JMenuItem updateProductMI = new JMenuItem("Обновить данные товара(ов)...");
-    private JMenuItem deleteProductMI = new JMenuItem("Удалить товар(ы)...");
-    private JMenu settingsMenu = new JMenu("Настройки");
-    private JMenu helpMenu = new JMenu("Помощь");
-    private JMenuItem about = new JMenuItem("О программе");
+    private JMenu fileMenu = new JMenu(Constants.MENU_FILE);
+    private JMenuItem newFile = new JMenuItem(Constants.MENU_NEW);
+    private JMenuItem save = new JMenuItem(Constants.MENU_SAVE);
+    private JMenuItem saveAs = new JMenuItem(Constants.MENU_SAVE_AS);
+    private JMenuItem exit = new JMenuItem(Constants.MENU_EXIT);
+    private JMenu actionMenu = new JMenu(Constants.MENU_ACTIONS);
+    private JMenuItem createProductMI = new JMenuItem(Constants.MENU_CREATE);
+    private JMenuItem updateProductMI = new JMenuItem(Constants.MENU_UPDATE);
+    private JMenuItem deleteProductMI = new JMenuItem(Constants.MENU_DELETE);
+    private JMenu settingsMenu = new JMenu(Constants.MENU_SETTINGS);
+    private JMenu helpMenu = new JMenu(Constants.MENU_HELP);
+    private JMenuItem about = new JMenuItem(Constants.MENU_ABOUT);
     // панель с кнопками действий
     private JToolBar toolBar = new JToolBar();
     private JPanel toolPanel;
     // боковая панель фильтров поиска
     private JPanel filterPanel = new JPanel(new VerticalLayout());
-    private JLabel productTypeLbl = new JLabel("Выберите тип товара:");
+    private JLabel productTypeLbl = new JLabel(Constants.OPTION_PRODUCT_TYPE);
     private JComboBox<String> productTypes = new JComboBox();
     private DefaultComboBoxModel<String> cbProductModel = new DefaultComboBoxModel<>();
-    private JLabel criteriaLbl = new JLabel("Выберите критерий поиска:");
+    private JLabel criteriaLbl = new JLabel(Constants.OPTION_CRITERIA);
     private JComboBox<String> criteria = new JComboBox<>();
     private DefaultComboBoxModel<String> cbCriteriaModel = new DefaultComboBoxModel<>();
+    private ButtonGroup rBtnGroup = new ButtonGroup();
+    private JRadioButton minMaxRBtn = new JRadioButton(Constants.RANGE_VALUE_RADIO);
+    private JRadioButton minRBtn = new JRadioButton(Constants.MIN_VALUE_RADIO);
+    private JRadioButton maxRBtn = new JRadioButton(Constants.MAX_VALUE_RADIO);
     private JLabel criteria_1lbl = new JLabel();
     private JTextField criteriaVal_1 = new JTextField(20);
     private JLabel criteria_2lbl = new JLabel();
     private JTextField criteriaVal_2 = new JTextField(20);
-    private JButton searchBtn = new JButton("Найти");
+    private JButton searchBtn = new JButton(Constants.SEARCH);
     // таблица для результатов поиска и редактирования
     private JTable table = new JTable();
 
@@ -118,16 +137,16 @@ public class ClientGuiView {
         BoxLayoutUtils blUtils = new BoxLayoutUtils();
         toolPanel = blUtils.createHorizontalPanel();
         toolPanel.add(toolBar);
-        toolPanel.add(Box.createHorizontalStrut(32));
+        toolPanel.add(Box.createHorizontalStrut(5));
         //добавляем панель инструментов
         frame.getContentPane().add(toolPanel, BorderLayout.NORTH);
 
         // добавляем боковую панель с фильтрами
         filterPanel.setBackground(Color.GRAY);
         filterPanel.add(productTypeLbl);
-        cbProductModel.addElement(NOT_SELECTED);
-        for (int i = 0; i < cbProdTypesNames.length; i++) {
-            cbProductModel.addElement(cbProdTypesNames[i]);
+        cbProductModel.addElement(Constants.NOT_SELECTED);
+        for (int i = 0; i < PRODUCT_NAMES.length; i++) {
+            cbProductModel.addElement(PRODUCT_NAMES[i]);
         }
         productTypes.setModel(cbProductModel);
         productTypes.setSelectedIndex(0);
@@ -136,15 +155,25 @@ public class ClientGuiView {
 
         criteriaLbl.setVisible(false);
         filterPanel.add(criteriaLbl);
-        cbCriteriaModel.addElement(NOT_SELECTED);
-        for (int i = 0; i < cbCategoryNames.length; i++) {
-            cbCriteriaModel.addElement(cbCategoryNames[i]);
-        }
+        cbCriteriaModel.addElement(Constants.NOT_SELECTED);
         criteria.setModel(cbCriteriaModel);
         criteria.setSelectedIndex(0);
         criteria.addActionListener(new SelectCriteriaListener());
         criteria.setVisible(false);
         filterPanel.add(criteria);
+        // группа опций "цены"
+        minMaxRBtn.setVisible(false);
+        minRBtn.setVisible(false);
+        maxRBtn.setVisible(false);
+        minMaxRBtn.addActionListener(new MinMaxPriceListener());
+        rBtnGroup.add(minMaxRBtn);
+        minRBtn.addActionListener(new MinPriceListener());
+        rBtnGroup.add(minRBtn);
+        maxRBtn.addActionListener(new MaxPriceListener());
+        rBtnGroup.add(maxRBtn);
+        filterPanel.add(minMaxRBtn);
+        filterPanel.add(minRBtn);
+        filterPanel.add(maxRBtn);
 
         criteria_1lbl.setVisible(false);
         filterPanel.add(criteria_1lbl);
@@ -177,20 +206,20 @@ public class ClientGuiView {
     public void refreshTable() {
         ArrayList<Product> products = (ArrayList<Product>) controller.getModel().getNewResult().getProductList();
         ProductType[] types = ProductType.values();
-        Object[][] data = emptyList;
-        Object[] columnNames = defaultListColumn;
+        Object[][] data = Constants.EMPTY_LIST;
+        Object[] columnNames = Constants.DEFAULT_COLUMN;
         if ((products != null) && (!products.isEmpty())) {
             switch (types[productTypes.getSelectedIndex()]) {
                 case PC:
-                    columnNames = PCColumnNames;
+                    columnNames = PC_COLUMNS;
                     data = fillPCData(products);
                     break;
                 case LAPTOP:
-                    columnNames = LaptopColumnNames;
+                    columnNames = LAPTOP_COLUMNS;
                     data = fillLaptopData(products);
                     break;
                 case PRINTER:
-                    columnNames = PrinterColumnNames;
+                    columnNames = PRINTER_COLUMNS;
                     data = fillPrinterData(products);
             }
         } else {
@@ -204,7 +233,7 @@ public class ClientGuiView {
 
     private Object[][] fillPCData(ArrayList<Product> products) {
         PC pc = null;
-        Object[][] data = new Object[products.size()][PCColumnNames.length];
+        Object[][] data = new Object[products.size()][PC_COLUMNS.length];
         for (int i = 0; i < data.length; i++) {
             pc = (PC) products.get(i);
             data[i][0] = pc.getId();
@@ -221,7 +250,7 @@ public class ClientGuiView {
 
     private Object[][] fillLaptopData(ArrayList<Product> products) {
         Laptop laptop = null;
-        Object[][] data = new Object[products.size()][LaptopColumnNames.length];
+        Object[][] data = new Object[products.size()][LAPTOP_COLUMNS.length];
         for (int i = 0; i < data.length; i++) {
             laptop = (Laptop) products.get(i);
             data[i][0] = laptop.getId();
@@ -238,7 +267,7 @@ public class ClientGuiView {
 
     private Object[][] fillPrinterData(ArrayList<Product> products) {
         Printer printer = null;
-        Object[][] data = new Object[products.size()][PrinterColumnNames.length];
+        Object[][] data = new Object[products.size()][PRINTER_COLUMNS.length];
         for (int i = 0; i < data.length; i++) {
             printer = (Printer) products.get(i);
             data[i][0] = printer.getId();
@@ -254,12 +283,15 @@ public class ClientGuiView {
     private class SelectProductListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            resetAllParameters();
+            clearTable();
             int index = productTypes.getSelectedIndex();
             if (index > 0) {
                 criteriaLbl.setVisible(true);
                 criteria.setSelectedIndex(0);
                 criteria.setVisible(true);
                 searchBtn.setEnabled(true);
+                fillCbCriteriaByProductType(index);
             } else {
                 criteriaLbl.setVisible(false);
                 criteria.setVisible(false);
@@ -270,57 +302,163 @@ public class ClientGuiView {
                 searchBtn.setEnabled(false);
             }
         }
+
+        private void fillCbCriteriaByProductType(int index) {
+            cbCriteriaModel.removeAllElements();
+            cbCriteriaModel.addElement(Constants.NOT_SELECTED);
+            ProductType[] types = ProductType.values();
+            switch (types[index]) {
+                case PC: fillPCCriteria();
+                    break;
+                case LAPTOP: fillLaptopCriteria();
+                    break;
+                case PRINTER: fillPrinterCriteria();
+            }
+        }
+
+        private void fillPrinterCriteria() {
+            for (int i = 0; i < PRINTER_COLUMNS.length; i++) {
+                cbCriteriaModel.addElement((String) PRINTER_COLUMNS[i]);
+            }
+        }
+
+        private void fillLaptopCriteria() {
+            for (int i = 0; i < LAPTOP_COLUMNS.length; i++) {
+                cbCriteriaModel.addElement((String) LAPTOP_COLUMNS[i]);
+            }
+        }
+
+        private void fillPCCriteria() {
+            for (int i = 0; i < PC_COLUMNS.length; i++) {
+                cbCriteriaModel.addElement((String) PC_COLUMNS[i]);
+            }
+        }
+    }
+
+    private void resetAllParameters() {
+        criteria_1lbl.setVisible(false);
+        criteriaVal_1.setVisible(false);
+        criteria_2lbl.setVisible(false);
+        criteriaVal_2.setVisible(false);
+        rBtnGroup.clearSelection();
+        minMaxRBtn.setVisible(false);
+        minRBtn.setVisible(false);
+        maxRBtn.setVisible(false);
     }
 
     private class SelectCriteriaListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            resetAllParameters();
+            clearAllCriteriaValues();
             int index = criteria.getSelectedIndex();
-            switch (index) {
-                case 1: criteria_1lbl.setText("Введите название модели:");
-                    break;
-                case 2: criteria_1lbl.setText("Введите название производителя:");
-                    break;
-                case 3: criteria_1lbl.setText("Введите минимальную цену:");
-                        criteria_2lbl.setText("Введите максимальную цену:");
-            }
+            if(index < 0) return;
+            String curr_item = criteria.getItemAt(index);
             if (index > 0) {
                 criteria_1lbl.setVisible(true);
                 criteriaVal_1.setVisible(true);
-                criteria_2lbl.setVisible(false);
-                criteriaVal_2.setVisible(false);
-                if (index == 3) {
-                    criteria_2lbl.setVisible(true);
-                    criteriaVal_2.setVisible(true);
+                if(MIN_MAX_VALUE_LIST.contains(curr_item)) {
+                    doMinMaxValuesVisible(curr_item);
+                } else {
+                    switch (curr_item) {
+                        case Constants.ID: criteria_1lbl.setText(Constants.OPTION_INPUT + Constants.ID_NAME);
+                            break;
+                        case Constants.MODEL: criteria_1lbl.setText(Constants.OPTION_INPUT + Constants.MODEL_NAME);
+                            break;
+                        case Constants.MAKER: criteria_1lbl.setText(Constants.OPTION_INPUT + Constants.MAKER_NAME);
+                            break;
+                        case Constants.CD: criteria_1lbl.setText(Constants.OPTION_INPUT + Constants.CD_NAME);
+                            break;
+                        case Constants.PRINTING_TYPE: criteria_1lbl.setText(Constants.OPTION_INPUT +
+                                Constants.PRINTING_TYPE_NAME);
+                            break;
+                        case Constants.COLOR: criteria_1lbl.setText(Constants.OPTION_INPUT + Constants.COLOR_NAME);
+                    }
                 }
-            } else {
-                criteria_1lbl.setVisible(false);
-                criteriaVal_1.setVisible(false);
-                criteria_2lbl.setVisible(false);
-                criteriaVal_2.setVisible(false);
             }
+        }
+
+        private void clearAllCriteriaValues() {
+            criteriaVal_1.setText("");
+            criteriaVal_2.setText("");
+        }
+
+        private void doMinMaxValuesVisible(String item) {
+            String minValueType = "";
+            String maxValueType = "";
+            switch (item) {
+                case Constants.PRICE:
+                    minValueType = Constants.MIN_PRICE;
+                    maxValueType = Constants.MAX_PRICE;
+                    break;
+                case Constants.SPEED:
+                    minValueType = Constants.MIN_SPEED;
+                    maxValueType = Constants.MAX_SPEED;
+                    break;
+                case Constants.HD:
+                    minValueType = Constants.MIN_HD;
+                    maxValueType = Constants.MAX_HD;
+                    break;
+                case Constants.RAM:
+                    minValueType = Constants.MIN_RAM;
+                    maxValueType = Constants.MAX_RAM;
+                    break;
+                case Constants.SCREEN:
+                    minValueType = Constants.MIN_SCREEN;
+                    maxValueType = Constants.MAX_SCREEN;
+                    break;
+            }
+            minMaxRBtn.setVisible(true);
+            minRBtn.setVisible(true);
+            maxRBtn.setVisible(true);
+            criteria_1lbl.setText(Constants.OPTION_INPUT + minValueType);
+            criteriaVal_1.setEnabled(false);
+            criteria_2lbl.setText(Constants.OPTION_INPUT + maxValueType);
+            criteria_2lbl.setVisible(true);
+            criteriaVal_2.setVisible(true);
+            criteriaVal_2.setEnabled(false);
         }
     }
 
     private class SearchListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            clearTable();
             int prod_type = productTypes.getSelectedIndex();
             int criteria_index = criteria.getSelectedIndex();
+            if(criteria_index < 1) return;
             ProductType[] types = ProductType.values();
             Criteria[] criteria = Criteria.values();
             QuerySet querySet = new QuerySet();
             querySet.setProductType(types[prod_type]);
-            querySet.setCriteria(criteria[criteria_index]);
-            switch (criteria[criteria_index]) {
-                case BY_MODEL:
-                case BY_MAKER: querySet.setCriteriaValue(criteriaVal_1.getText());
+            int ordinal = -1;
+            switch (types[prod_type]) {
+                case PC: ordinal = PC_CRITERIA[criteria_index];
                     break;
-                case BY_PRICE: querySet.setMinPriceValue(Integer.parseInt(criteriaVal_1.getText()));
-                    querySet.setMaxPriceValue(Integer.parseInt(criteriaVal_2.getText()));
+                case LAPTOP: ordinal = LAPTOP_CRITERIA[criteria_index];
+                    break;
+                case PRINTER: ordinal = PRINTER_CRITERIA[criteria_index];
+            }
+            querySet.setCriteria(criteria[ordinal]);
+            switch (criteria[ordinal]) {
+                case BY_PRICE:
+                case BY_HD:
+                case BY_RAM:
+                case BY_SPEED:
+                case BY_SCREEN:
+                    querySet.setMinValue(criteriaVal_1.getText());
+                    querySet.setMaxValue(criteriaVal_2.getText());
+                    break;
+                default:
+                    querySet.setCriteriaValue(criteriaVal_1.getText());
             }
             controller.sendQuery(CommandType.READ, querySet);
         }
+    }
+
+    private void clearTable() {
+        table.setModel(new DefaultTableModel(EMPTY_TABLE_DATA, EMPTY_TABLE_COLUMN));
+        frame.repaint();
     }
 
     private class CreateAction extends Component implements Action {
@@ -339,12 +477,12 @@ public class ClientGuiView {
                     "Выберите тип товара, который необходимо добавить:",
                     "Выбор типа товара",
                     JOptionPane.QUESTION_MESSAGE,
-                    new ImageIcon(CREATE_ICON), cbProdTypesNames, cbProdTypesNames[0]);
+                    new ImageIcon(CREATE_ICON), PRODUCT_NAMES, PRODUCT_NAMES[0]);
             int prod_type = 0;
             if(selected != null) {
                 String s = (String) selected;
-                for (int i = 0; i < cbProdTypesNames.length; i++) {
-                    if(s.equals(cbProdTypesNames[i])) {
+                for (int i = 0; i < PRODUCT_NAMES.length; i++) {
+                    if(s.equals(PRODUCT_NAMES[i])) {
                         prod_type = ++i;
                         break;
                     }
@@ -357,13 +495,13 @@ public class ClientGuiView {
             final Object[] columnNames;
             String prodName = null;
             switch (type) {
-                case PC: columnNames = PCColumnNames;
+                case PC: columnNames = PC_COLUMNS;
                     prodName = "ПК";
                     break;
-                case LAPTOP: columnNames = LaptopColumnNames;
+                case LAPTOP: columnNames = LAPTOP_COLUMNS;
                     prodName = "ноутбука";
                     break;
-                case PRINTER: columnNames = PrinterColumnNames;
+                case PRINTER: columnNames = PRINTER_COLUMNS;
                     prodName = "принтера";
                     break;
                 default:
@@ -512,11 +650,11 @@ public class ClientGuiView {
             final Object[][] data;
             final Object[][] backUpData;
             switch (types[productTypes.getSelectedIndex()]) {
-                case PC: columnNames = PCColumnNames;
+                case PC: columnNames = PC_COLUMNS;
                     break;
-                case LAPTOP: columnNames = LaptopColumnNames;
+                case LAPTOP: columnNames = LAPTOP_COLUMNS;
                     break;
-                case PRINTER: columnNames = PrinterColumnNames;
+                case PRINTER: columnNames = PRINTER_COLUMNS;
                     break;
                 default: columnNames = new Object[0];
             }
@@ -774,6 +912,38 @@ public class ClientGuiView {
             }
             size.height = height;
             return size;
+        }
+    }
+
+    private class MinMaxPriceListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(minMaxRBtn.isSelected()) {
+                criteriaVal_1.setEnabled(true);
+                criteriaVal_2.setEnabled(true);
+            }
+        }
+    }
+
+    private class MinPriceListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(minRBtn.isSelected()) {
+                criteriaVal_1.setEnabled(true);
+                criteriaVal_2.setEnabled(false);
+                criteriaVal_2.setText("");
+            }
+        }
+    }
+
+    private class MaxPriceListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(maxRBtn.isSelected()) {
+                criteriaVal_1.setEnabled(false);
+                criteriaVal_1.setText("");
+                criteriaVal_2.setEnabled(true);
+            }
         }
     }
 }

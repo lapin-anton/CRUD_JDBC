@@ -1,7 +1,6 @@
 public class ClientGuiController extends Client {
     private ClientGuiView view = new ClientGuiView(this);
     private ClientGuiModel model = new ClientGuiModel();
-    private boolean isExit = false;
 
     public static void main(String[] args) {
         ClientGuiController controller = new ClientGuiController();
