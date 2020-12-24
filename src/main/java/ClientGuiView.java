@@ -70,6 +70,9 @@ public class ClientGuiView {
     private JMenuItem updateProductMI = new JMenuItem(Constants.MENU_UPDATE);
     private JMenuItem deleteProductMI = new JMenuItem(Constants.MENU_DELETE);
     private JMenu settingsMenu = new JMenu(Constants.MENU_SETTINGS);
+    private JMenuItem authNewMI = new JMenuItem(Constants.MENU_AUTH_NEW);
+    private JMenuItem authChangeMI = new JMenuItem(Constants.MENU_AUTH_CHANGE);
+    private JMenuItem connectionMI = new JMenuItem(Constants.MENU_CONNECTION);
     private JMenu helpMenu = new JMenu(Constants.MENU_HELP);
     private JMenuItem about = new JMenuItem(Constants.MENU_ABOUT);
     // панель с кнопками действий
@@ -118,6 +121,13 @@ public class ClientGuiView {
         actionMenu.add(updateProductMI);
         deleteProductMI.addActionListener(new DeleteAction());
         actionMenu.add(deleteProductMI);
+
+        authNewMI.addActionListener(new SetAuthNewActionListener());
+        settingsMenu.add(authNewMI);
+        authChangeMI.addActionListener(new SetAuthChangeActionListener());
+        settingsMenu.add(authChangeMI);
+        connectionMI.addActionListener(new SetConnectActionListener());
+        settingsMenu.add(connectionMI);
 
         helpMenu.add(about);
 
@@ -942,6 +952,159 @@ public class ClientGuiView {
                 criteriaVal_1.setEnabled(false);
                 criteriaVal_1.setText("");
                 criteriaVal_2.setEnabled(true);
+            }
+        }
+    }
+
+    private class SetConnectActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            showSetConnectionDialog();
+//            try {
+//                Settings settings = new Settings();
+//                String username = JOptionPane.showInputDialog(
+//                        frame,
+//                        "Введите имя пользователя БД:",
+//                        "Конфигурация сервера",
+//                        JOptionPane.QUESTION_MESSAGE);
+//                if(username != null) settings.setUsername(username);
+//                String password = JOptionPane.showInputDialog(
+//                        frame,
+//                        "Введите пароль для подключения к БД:",
+//                        "Конфигурация сервера",
+//                        JOptionPane.QUESTION_MESSAGE);
+//                if(username != null) settings.setPassword(password);
+//                String host = JOptionPane.showInputDialog(
+//                        frame,
+//                        "Введите имя хоста сервера:",
+//                        "Конфигурация клиента",
+//                        JOptionPane.QUESTION_MESSAGE);
+//                if (host != null) settings.setHostName(host);
+//                while (true) {
+//                    String sPort = JOptionPane.showInputDialog(
+//                            frame,
+//                            "Введите порт сервера:",
+//                            "Конфигурация клиента",
+//                            JOptionPane.QUESTION_MESSAGE);
+//                    try {
+//                        int port = Integer.parseInt(sPort.trim());
+//                        settings.setPort(port);
+//                        break;
+//                    } catch (NumberFormatException ex) {
+//                        JOptionPane.showMessageDialog(
+//                                frame,
+//                                "Был введен некорректный порт сервера. Попробуйте еще раз.",
+//                                "Конфигурация клиента",
+//                                JOptionPane.ERROR_MESSAGE);
+//                    }
+//                }
+//            } catch (Exception exception) {
+//                ExceptionHandler.log(exception);
+//            }
+        }
+
+        private void showSetConnectionDialog() {
+            try {
+                Settings settings = new Settings();
+                String userName = settings.getUsername();
+                String password = settings.getPassword();
+                String hostName = settings.getHostName();
+                int port = settings.getPort();
+                JPanel mainPnl = new JPanel(new VerticalLayout());
+                JDialog dialog = new JDialog(frame, "Изменение настроек подключения к серверу и БД", true);
+                JTextField tfUserName = new JTextField(20);
+                tfUserName.setText(userName);
+                JTextField tfPassword = new JTextField(20);
+                tfPassword.setText(password);
+                JTextField tfHostName = new JTextField(20);
+                tfHostName.setText(hostName);
+                JTextField tfPort = new JTextField(20);
+                tfPort.setText(String.valueOf(port));
+                JLabel lClientHeader = new JLabel("Конфигурация клиента");
+                JLabel lDBHeader = new JLabel("Конфигурация подключения к БД");
+                JLabel lUserName = new JLabel(Constants.OPTION_INPUT + Constants.USER_NAME);
+                JLabel lPassword = new JLabel(Constants.OPTION_INPUT + Constants.PASSWORD);
+                JLabel lHostName = new JLabel(Constants.OPTION_INPUT + Constants.HOST_NAME);
+                JLabel lPort = new JLabel(Constants.OPTION_INPUT + Constants.PORT);
+                JPanel buttonPnl = new BoxLayoutUtils().createHorizontalPanel();
+                JButton saveBtn = new JButton("Сохранить");
+                saveBtn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        settings.setUsername(tfUserName.getText().trim());
+                        settings.setPassword(tfPassword.getText().trim());
+                        settings.setHostName(tfHostName.getText().trim());
+                        try {
+                            int port = Integer.parseInt(tfPort.getText().trim());
+                            settings.saveNewSettings();
+                            settings.setPort(port);
+                            dialog.dispose();
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(
+                                frame,
+                                "Был введен некорректный порт сервера. Попробуйте еще раз.",
+                                "Конфигурация клиента",
+                                JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+                JButton cancelBtn = new JButton("Отмена");
+                cancelBtn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        dialog.dispose();
+                    }
+                });
+                JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+                separator.setSize(separator.getWidth(), 1);
+
+                mainPnl.add(lClientHeader);
+                mainPnl.add(lHostName);
+                mainPnl.add(tfHostName);
+                mainPnl.add(lPort);
+                mainPnl.add(tfPort);
+                mainPnl.add(Box.createVerticalStrut(5));
+                mainPnl.add(lDBHeader);
+                mainPnl.add(lUserName);
+                mainPnl.add(tfUserName);
+                mainPnl.add(lPassword);
+                mainPnl.add(tfPassword);
+
+                dialog.getContentPane().add(mainPnl);
+                int dialogWidth = 210;
+                int strut = dialogWidth - saveBtn.getPreferredSize().width - cancelBtn.getPreferredSize().width - 15;
+                buttonPnl.add(Box.createHorizontalStrut(strut));
+                buttonPnl.add(saveBtn);
+                buttonPnl.add(cancelBtn);
+
+                dialog.getContentPane().add(buttonPnl, BorderLayout.SOUTH);
+                dialog.pack();
+                dialog.setSize(dialogWidth, 300);
+                dialog.setResizable(false);
+                dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+                dialog.setVisible(true);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class SetAuthNewActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+
+        }
+    }
+
+    private class SetAuthChangeActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+
+            } catch (Exception exception) {
+                ExceptionHandler.log(exception);
             }
         }
     }

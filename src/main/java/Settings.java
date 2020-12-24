@@ -82,6 +82,14 @@ public class Settings {
         this.password = password;
     }
 
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+
     public int getPort() {
         return port;
     }
