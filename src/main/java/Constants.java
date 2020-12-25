@@ -48,7 +48,7 @@ public class Constants {
     public static final String COLOR = "Цветная печать";
     // названия пунктов главного меню
     public static final String MENU_FILE = "Файл";
-    public static final String MENU_NEW = "Новый...";
+    public static final String MENU_OPEN = "Открыть...";
     public static final String MENU_SAVE = "Сохранить";
     public static final String MENU_SAVE_AS = "Сохранить как...";
     public static final String MENU_EXIT = "Выход";

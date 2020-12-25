@@ -42,23 +42,6 @@ public class Settings {
                     "Пожалуйста, запустите клиент приложения. В диалоговом окне настроек \n" +
                     "внесите все необходимые данные. Затем закройте клиент, запустите сервер \n" +
                     " и затем снова запустите клиент.");
-//            isEdited = true;
-//            ConsoleHelper.writeMessage("Настройки подключения к БД и серверу не были сохранены.");
-//            ConsoleHelper.writeMessage("Пожалуйста, введите новые настройки.");
-//            ConsoleHelper.writeMessage("Введите номер порта сервера БД:");
-//            int port = ConsoleHelper.readInt();
-//            ConsoleHelper.writeMessage("Введите имя БД:");
-//            String dbName = ConsoleHelper.readString();
-//            this.dbURL = String.format(DB_URL, port, dbName);
-//            ConsoleHelper.writeMessage("Введите имя пользователя:");
-//            this.username = ConsoleHelper.readString();
-//            ConsoleHelper.writeMessage("Введите пароль:");
-//            this.password = ConsoleHelper.readString();
-//            ConsoleHelper.writeMessage("Введите имя хоста сервера приложения:");
-//            this.hostName = ConsoleHelper.readString();
-//            ConsoleHelper.writeMessage("Введите номер порта сокета:");
-//            this.port = ConsoleHelper.readInt();
-//            saveNewSettings();
         }
     }
 

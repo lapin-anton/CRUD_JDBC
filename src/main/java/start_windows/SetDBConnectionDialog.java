@@ -86,7 +86,7 @@ public class SetDBConnectionDialog extends JDialog {
                 } else {
                     JOptionPane.showMessageDialog(
                                 getParent(),
-                                "Были введены не все данные.",
+                                "Введены не все данные.",
                                 "Предупреждение",
                                 JOptionPane.WARNING_MESSAGE);
                 }

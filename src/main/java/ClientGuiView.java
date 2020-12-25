@@ -2,10 +2,13 @@ import product.*;
 import start_windows.SetDBConnectionDialog;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -62,10 +65,10 @@ public class ClientGuiView {
     // меню приложения
     private JMenuBar menuBar = new JMenuBar();
     private JMenu fileMenu = new JMenu(Constants.MENU_FILE);
-    private JMenuItem newFile = new JMenuItem(Constants.MENU_NEW);
-    private JMenuItem save = new JMenuItem(Constants.MENU_SAVE);
-    private JMenuItem saveAs = new JMenuItem(Constants.MENU_SAVE_AS);
-    private JMenuItem exit = new JMenuItem(Constants.MENU_EXIT);
+    private JMenuItem openMI = new JMenuItem(Constants.MENU_OPEN);
+    private JMenuItem saveMI = new JMenuItem(Constants.MENU_SAVE);
+    private JMenuItem saveAsMI = new JMenuItem(Constants.MENU_SAVE_AS);
+    private JMenuItem exitMI = new JMenuItem(Constants.MENU_EXIT);
     private JMenu actionMenu = new JMenu(Constants.MENU_ACTIONS);
     private JMenuItem createProductMI = new JMenuItem(Constants.MENU_CREATE);
     private JMenuItem updateProductMI = new JMenuItem(Constants.MENU_UPDATE);
@@ -105,16 +108,57 @@ public class ClientGuiView {
     }
 
     private void initView() {
-        fileMenu.add(newFile);
-        fileMenu.add(save);
-        fileMenu.add(saveAs);
-        exit.addActionListener(new ActionListener() {
+        openMI.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //
+            }
+        });
+        fileMenu.add(openMI);
+        fileMenu.add(saveMI);
+        saveAsMI.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setDialogTitle("Сохранение файла");
+                chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                chooser.setFileFilter(new FileNameExtensionFilter("Файлы XML", "xml"));
+                int result = chooser.showSaveDialog(frame);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    ProductType[] types = ProductType.values();
+                    Object[][] data = new Object[table.getRowCount()][table.getColumnCount()];
+                    for (int i = 0; i < data.length; i++) {
+                        for (int j = 0; j < data[i].length; j++) {
+                            data[i][j] = table.getValueAt(i, j);
+                        }
+                    }
+                    Object[] columns = new Object[table.getColumnCount()];
+                    for (int i = 0; i < columns.length; i++) {
+                        columns[i] = table.getColumnName(i);
+                    }
+                    try {
+                        FileManager.save(chooser.getSelectedFile(), data, columns,
+                                types[productTypes.getSelectedIndex()]);
+                        JOptionPane.showMessageDialog(frame,
+                                "Файл '" + chooser.getSelectedFile() +
+                                        "' сохранен");
+                    } catch (Exception ex) {
+                        ExceptionHandler.log(ex);
+                        JOptionPane.showMessageDialog(frame,
+                                "Файл '" + chooser.getSelectedFile() +
+                                        "' не был сохранен");
+                    }
+                }
+            }
+        });
+        fileMenu.add(saveAsMI);
+        exitMI.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
             }
         });
-        fileMenu.add(exit);
+        fileMenu.add(exitMI);
 
         createProductMI.addActionListener(new CreateAction());
         actionMenu.add(createProductMI);
