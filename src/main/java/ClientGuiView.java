@@ -1,4 +1,5 @@
 import product.*;
+import start_windows.SetDBConnectionDialog;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -206,6 +207,16 @@ public class ClientGuiView {
         frame.setSize (foolScreenSize);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+        if(Client.getSettings().isNotExists()) {
+            SetDBConnectionDialog dialog = new SetDBConnectionDialog(frame);
+            dialog.showDialog();
+            try {
+                new Settings(dialog.getDbName(), dialog.getDbPort(), dialog.getUsername(), dialog.getPass(),
+                        Integer.parseInt(dialog.getHostPort()), dialog.getHostName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void notifyConnectionStatusChanged(boolean clientConnected) {

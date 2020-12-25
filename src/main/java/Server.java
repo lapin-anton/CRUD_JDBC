@@ -27,11 +27,11 @@ public class Server {
         try {
             int port = settings.getPort();
             try (ServerSocket serverSocket = new ServerSocket(port)) {
-                System.out.println("Сервер запущен.");
                 try (Connection connection = DriverManager.getConnection(settings.getDbURL(), settings.getUsername(),
                         settings.getPassword())) {
                     if (connection == null) return;
                     dbManager = new DBManager(connection);
+                    System.out.println("Сервер запущен.");
                     ConsoleHelper.writeMessage("Соединение с базой данных установлено.");
                     while (true) {
                         Socket s = serverSocket.accept();

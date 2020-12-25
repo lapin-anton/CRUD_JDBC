@@ -1,3 +1,5 @@
+import start_windows.SetDBConnectionDialog;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,6 +13,7 @@ public class Settings {
     private final static String PASSWORD = "password";
     private final static String HOST = "host";
     private final static String PORT = "port";
+    private final static String DB_URL = "jdbc:mysql://localhost:%s/%s?useUnicode=true&serverTimezone=UTC";
 
     // настройки для подключения к БД
     private String dbURL;
@@ -21,6 +24,7 @@ public class Settings {
     private String hostName;
     // флаг изменения настроек
     private boolean isEdited = false;
+    private boolean isNotExists = false;
 
     public Settings() throws Exception {
         Properties props = new Properties();
@@ -33,26 +37,40 @@ public class Settings {
             this.hostName = props.getProperty(HOST);
             this.port = Integer.parseInt(props.getProperty(PORT));
         } else {
-            isEdited = true;
-            ConsoleHelper.writeMessage("Настройки подключения к БД и серверу не были сохранены.");
-            ConsoleHelper.writeMessage("Пожалуйста, введите новые настройки.");
-            ConsoleHelper.writeMessage("Введите тип БД:");
-            String db = ConsoleHelper.readString();
-            ConsoleHelper.writeMessage("Введите номер порта сервера БД:");
-            int port = ConsoleHelper.readInt();
-            ConsoleHelper.writeMessage("Введите имя БД:");
-            String dbName = ConsoleHelper.readString();
-            this.dbURL = String.format("jdbc:%s://localhost:%d/%s?useUnicode=true&serverTimezone=UTC", db, port, dbName);
-            ConsoleHelper.writeMessage("Введите имя пользователя:");
-            this.username = ConsoleHelper.readString();
-            ConsoleHelper.writeMessage("Введите пароль:");
-            this.password = ConsoleHelper.readString();
-            ConsoleHelper.writeMessage("Введите имя хоста сервера приложения:");
-            this.hostName = ConsoleHelper.readString();
-            ConsoleHelper.writeMessage("Введите номер порта сокета:");
-            this.port = ConsoleHelper.readInt();
-            saveNewSettings();
+            isNotExists = true;
+            ConsoleHelper.writeMessage("Файл с настройками приложения отсутствует. \n" +
+                    "Пожалуйста, запустите клиент приложения. В диалоговом окне настроек \n" +
+                    "внесите все необходимые данные. Затем закройте клиент, запустите сервер \n" +
+                    " и затем снова запустите клиент.");
+//            isEdited = true;
+//            ConsoleHelper.writeMessage("Настройки подключения к БД и серверу не были сохранены.");
+//            ConsoleHelper.writeMessage("Пожалуйста, введите новые настройки.");
+//            ConsoleHelper.writeMessage("Введите номер порта сервера БД:");
+//            int port = ConsoleHelper.readInt();
+//            ConsoleHelper.writeMessage("Введите имя БД:");
+//            String dbName = ConsoleHelper.readString();
+//            this.dbURL = String.format(DB_URL, port, dbName);
+//            ConsoleHelper.writeMessage("Введите имя пользователя:");
+//            this.username = ConsoleHelper.readString();
+//            ConsoleHelper.writeMessage("Введите пароль:");
+//            this.password = ConsoleHelper.readString();
+//            ConsoleHelper.writeMessage("Введите имя хоста сервера приложения:");
+//            this.hostName = ConsoleHelper.readString();
+//            ConsoleHelper.writeMessage("Введите номер порта сокета:");
+//            this.port = ConsoleHelper.readInt();
+//            saveNewSettings();
         }
+    }
+
+    public Settings(String dbName, String dbPort, String username, String password, int port, String hostName)
+            throws Exception {
+        isEdited = true;
+        this.dbURL = String.format(DB_URL, dbPort, dbName);
+        this.username = username;
+        this.password = password;
+        this.port = port;
+        this.hostName = hostName;
+        saveNewSettings();
     }
 
     public String getDbURL() {
@@ -83,10 +101,12 @@ public class Settings {
     }
 
     public void setPort(int port) {
+        isEdited = true;
         this.port = port;
     }
 
     public void setHostName(String hostName) {
+        isEdited = true;
         this.hostName = hostName;
     }
 
@@ -110,5 +130,9 @@ public class Settings {
             FileOutputStream fos = new FileOutputStream(f);
             properties.store(fos, "");
         }
+    }
+
+    public boolean isNotExists() {
+        return isNotExists;
     }
 }

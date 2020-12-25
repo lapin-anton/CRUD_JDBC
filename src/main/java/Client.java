@@ -97,4 +97,8 @@ public class Client {
     public static Connector getConnector() {
         return connector;
     }
+
+    public static Settings getSettings() {
+        return settings;
+    }
 }
