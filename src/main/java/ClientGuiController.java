@@ -6,6 +6,10 @@ public class ClientGuiController extends Client {
     private ClientGuiModel model = new ClientGuiModel();
 
     public static void main(String[] args) {
+        if (Client.getSettings().isNotExists()) {
+            new SetDBConnectionDialog();
+            return;
+        }
         ClientGuiController controller = new ClientGuiController();
         controller.run();
     }

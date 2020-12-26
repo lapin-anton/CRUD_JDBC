@@ -1,11 +1,9 @@
-package start_windows;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class SetDBConnectionDialog extends JDialog {
+public class SetDBConnectionDialog extends JFrame {
 
     private static final int DIALOG_WIDTH = 300;
 
@@ -44,11 +42,7 @@ public class SetDBConnectionDialog extends JDialog {
         }
     }
 
-    public SetDBConnectionDialog(Frame owner) {
-        super(owner, "Конфигурация БД", true);
-    }
-
-    public void showDialog() {
+    public SetDBConnectionDialog() throws HeadlessException {
         init();
     }
 
@@ -82,7 +76,17 @@ public class SetDBConnectionDialog extends JDialog {
                 setHostName(tfHostName.getText().trim());
                 setHostPort(tfHostPort.getText().trim());
                 if(isCorrect()) {
-                    dispose();
+                    try {
+                        new Settings(dbName, dbPort, username, pass,
+                                Integer.parseInt(hostPort), hostName);
+                        dispose();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(
+                                getParent(),
+                                "Неверный формат введенных данных.",
+                                "Предупреждение",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
                 } else {
                     JOptionPane.showMessageDialog(
                                 getParent(),
