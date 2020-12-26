@@ -50,11 +50,10 @@ public class ClientGuiView {
     private static final String DELETE_ICON = "./src/main/resources/images/icon32x32/delete.png";
 
     //параметры пользователя
-    private static final String[] modes = {Constants.MODE_DEMO, Constants.MODE_USER, Constants.MODE_ADMIN};
+    private static final String[] MODES = {Constants.MODE_DEMO, Constants.MODE_USER, Constants.MODE_ADMIN};
 
     private final ClientGuiController controller;
-    private String login;
-    private UserMode mode;
+    private User user;
 
     static {
         try {
@@ -105,10 +104,9 @@ public class ClientGuiView {
     // таблица для результатов поиска и редактирования
     private JTable table = new JTable();
 
-    public ClientGuiView(ClientGuiController controller, String login, UserMode mode) {
+    public ClientGuiView(ClientGuiController controller, User user) {
         this.controller = controller;
-        this.login = login;
-        this.mode = mode;
+        this.user = user;
         initView();
     }
 
@@ -221,8 +219,8 @@ public class ClientGuiView {
         filterPanel.setBackground(Color.GRAY);
         filterPanel.add(productTypeLbl);
         cbProductModel.addElement(Constants.NOT_SELECTED);
-        for (int i = 0; i < PRODUCT_NAMES.length; i++) {
-            cbProductModel.addElement(PRODUCT_NAMES[i]);
+        for (String product_name : PRODUCT_NAMES) {
+            cbProductModel.addElement(product_name);
         }
         productTypes.setModel(cbProductModel);
         productTypes.setSelectedIndex(0);
@@ -270,7 +268,8 @@ public class ClientGuiView {
         frame.pack();
         Dimension foolScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setSize (foolScreenSize);
-        String title = String.format("%s Пользователь: %s (%s)", Constants.COMPANY_TITLE, login, modes[mode.ordinal()]);
+        String title = String.format("%s Пользователь: %s (%s)", Constants.COMPANY_TITLE, user.getLogin(),
+                MODES[user.getMode().ordinal()]);
         frame.setTitle(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);

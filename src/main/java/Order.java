@@ -12,8 +12,7 @@ public class Order implements Serializable {
     private ArrayList<String> models;
     private Product product;
     private HashMap<String, Product> products;
-    private String login;
-    private String password;
+    private User user;
 
     //Запрос на чтение
     public Order(ProductType productType) {
@@ -65,10 +64,9 @@ public class Order implements Serializable {
     // запрос на авторизацию
 
 
-    public Order(String login, String password) {
+    public Order(User user) {
         this.commandType = CommandType.AUTHORIZATION;
-        this.login = login;
-        this.password = password;
+        this.user = user;
     }
 
     public CommandType getCommandType() {
@@ -95,11 +93,7 @@ public class Order implements Serializable {
         return products;
     }
 
-    public String getLogin() {
-        return login;
-    }
-
-    public String getPassword() {
-        return password;
+    public User getUser() {
+        return user;
     }
 }

@@ -11,8 +11,7 @@ public class AuthUserDialog extends JFrame {
     private static final int HEIGHT = 180;
 
     private ClientGuiController controller;
-    private String login;
-    private String password;
+    private User user;
 
     private JPanel pnlButton = new JPanel();
     private JPanel pnlMain = new JPanel(new VerticalLayout());
@@ -59,14 +58,15 @@ public class AuthUserDialog extends JFrame {
         btnSubmit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                login = tfLogin.getText().trim();
-                password = tfPassword.getText().trim();
+                String login = tfLogin.getText().trim();
+                String password = tfPassword.getText().trim();
                 if (login.equals("") || password.equals("")) {
                     JOptionPane.showMessageDialog(getParent(), "Введены не все данные", "Информация",
                             JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
                 try {
+                    user = new User(login, password);
                     controller.initAuth();
                 } catch (Exception exception) {
                     JOptionPane.showMessageDialog(getParent(), "Ошибка! Проверьте подключение с сервером.",
@@ -97,11 +97,7 @@ public class AuthUserDialog extends JFrame {
         setVisible(true);
     }
 
-    public String getLogin() {
-        return login;
-    }
-
-    public String getPassword() {
-        return password;
+    public User getUser() {
+        return user;
     }
 }

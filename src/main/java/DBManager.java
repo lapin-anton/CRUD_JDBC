@@ -410,8 +410,8 @@ public class DBManager {
     // проверка пользователя
     public Result checkUser(Order order) {
         Result result = null;
-        String sql = String.format("SELECT * FROM users WHERE name='%s' AND password='%s'", order.getLogin(),
-                order.getPassword());
+        String sql = String.format("SELECT * FROM users WHERE name='%s' AND password='%s'", order.getUser().getLogin(),
+                order.getUser().getPassword());
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
@@ -425,9 +425,9 @@ public class DBManager {
                     case "user":
                         mode = UserMode.USER;
                 }
-                result = new Result(true, mode);
+                result = new Result(true, new User(order.getUser().getLogin(), order.getUser().getPassword(), mode));
             } else {
-                result = new Result(false, mode);
+                result = new Result(false, null);
             }
         } catch (SQLException e) {
             ExceptionHandler.log(e);

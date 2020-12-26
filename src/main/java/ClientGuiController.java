@@ -21,12 +21,12 @@ public class ClientGuiController extends Client {
     }
 
     public void initAuth() throws Exception {
-        Order order = new Order(auth.getLogin(), auth.getPassword());
+        Order order = new Order(auth.getUser());
         connector.clientSend(order);
         Result result = connector.clientReceive();
         if(result.isUserExists()) {
             auth.dispose();
-            initView(auth.getLogin(), result.getMode());
+            initView(result.getUser());
         } else {
             JOptionPane.showMessageDialog(auth, "Неправильный логин или пароль", "Информация",
                     JOptionPane.INFORMATION_MESSAGE);
@@ -35,7 +35,7 @@ public class ClientGuiController extends Client {
 
     public void initDemo() {
         auth.dispose();
-        initView("", UserMode.NONE);
+        initView(new User());
     }
 
     private class GuiSocketThread extends SocketThread {
@@ -53,8 +53,8 @@ public class ClientGuiController extends Client {
         }
     }
 
-    public void initView(String login, UserMode userMode) {
-        view = new ClientGuiView(this, login, userMode);
+    public void initView(User user) {
+        view = new ClientGuiView(this, user);
     }
 
     public ClientGuiView getView() {
