@@ -1,3 +1,4 @@
+import layouts.VerticalLayout;
 import product.*;
 import start_windows.SetDBConnectionDialog;
 
@@ -49,7 +50,12 @@ public class ClientGuiView {
     private static final String UPDATE_ICON = "./src/main/resources/images/icon32x32/update.png";
     private static final String DELETE_ICON = "./src/main/resources/images/icon32x32/delete.png";
 
+    //параметры пользователя
+    private static final String[] modes = {Constants.MODE_DEMO, Constants.MODE_USER, Constants.MODE_ADMIN};
+
     private final ClientGuiController controller;
+    private String login;
+    private UserMode mode;
 
     static {
         try {
@@ -59,7 +65,7 @@ public class ClientGuiView {
         }
     }
 
-    private JFrame frame = new JFrame(Constants.COMPANY_TITLE);
+    private JFrame frame = new JFrame();
     // меню приложения
     private JMenuBar menuBar = new JMenuBar();
     private JMenu fileMenu = new JMenu(Constants.MENU_FILE);
@@ -100,8 +106,10 @@ public class ClientGuiView {
     // таблица для результатов поиска и редактирования
     private JTable table = new JTable();
 
-    public ClientGuiView(ClientGuiController controller) {
+    public ClientGuiView(ClientGuiController controller, String login, UserMode mode) {
         this.controller = controller;
+        this.login = login;
+        this.mode = mode;
         initView();
     }
 
@@ -263,6 +271,8 @@ public class ClientGuiView {
         frame.pack();
         Dimension foolScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setSize (foolScreenSize);
+        String title = String.format("%s Пользователь: %s (%s)", Constants.COMPANY_TITLE, login, modes[mode.ordinal()]);
+        frame.setTitle(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         if(Client.getSettings().isNotExists()) {
@@ -935,64 +945,6 @@ public class ClientGuiView {
         }
     }
 
-    class VerticalLayout implements LayoutManager
-    {
-        private Dimension size = new Dimension();
-
-        // Следующие два метода не используются
-        public void addLayoutComponent   (String name, Component comp) {}
-        public void removeLayoutComponent(Component comp) {}
-
-        // Метод определения минимального размера для контейнера
-        public Dimension minimumLayoutSize(Container c) {
-            return calculateBestSize(c);
-        }
-        // Метод определения предпочтительного размера для контейнера
-        public Dimension preferredLayoutSize(Container c) {
-            return calculateBestSize(c);
-        }
-        // Метод расположения компонентов в контейнере
-        public void layoutContainer(Container container)
-        {
-            // Список компонентов
-            Component list[] = container.getComponents();
-            int currentY = 5;
-            for (int i = 0; i < list.length; i++) {
-                // Определение предпочтительного размера компонента
-                Dimension pref = list[i].getPreferredSize();
-                // Размещение компонента на экране
-                list[i].setBounds(5, currentY, pref.width, pref.height);
-                // Учитываем промежуток в 5 пикселов
-                currentY += 5;
-                // Смещаем вертикальную позицию компонента
-                currentY += pref.height;
-            }
-        }
-        // Метод вычисления оптимального размера контейнера
-        private Dimension calculateBestSize(Container c)
-        {
-            // Вычисление длины контейнера
-            Component[] list = c.getComponents();
-            int maxWidth = 0;
-            for (int i = 0; i < list.length; i++) {
-                int width = list[i].getWidth();
-                // Поиск компонента с максимальной длиной
-                if ( width > maxWidth )
-                    maxWidth = width;
-            }
-            // Размер контейнера в длину с учетом левого и правого отступа
-            size.width = maxWidth + 10;
-            // Вычисление высоты контейнера
-            int height = 0;
-            for (int i = 0; i < list.length; i++) {
-                height += 5;
-                height += list[i].getHeight();
-            }
-            size.height = height;
-            return size;
-        }
-    }
-
     private class MinMaxPriceListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -1029,47 +981,6 @@ public class ClientGuiView {
         @Override
         public void actionPerformed(ActionEvent e) {
             showSetConnectionDialog();
-//            try {
-//                Settings settings = new Settings();
-//                String username = JOptionPane.showInputDialog(
-//                        frame,
-//                        "Введите имя пользователя БД:",
-//                        "Конфигурация сервера",
-//                        JOptionPane.QUESTION_MESSAGE);
-//                if(username != null) settings.setUsername(username);
-//                String password = JOptionPane.showInputDialog(
-//                        frame,
-//                        "Введите пароль для подключения к БД:",
-//                        "Конфигурация сервера",
-//                        JOptionPane.QUESTION_MESSAGE);
-//                if(username != null) settings.setPassword(password);
-//                String host = JOptionPane.showInputDialog(
-//                        frame,
-//                        "Введите имя хоста сервера:",
-//                        "Конфигурация клиента",
-//                        JOptionPane.QUESTION_MESSAGE);
-//                if (host != null) settings.setHostName(host);
-//                while (true) {
-//                    String sPort = JOptionPane.showInputDialog(
-//                            frame,
-//                            "Введите порт сервера:",
-//                            "Конфигурация клиента",
-//                            JOptionPane.QUESTION_MESSAGE);
-//                    try {
-//                        int port = Integer.parseInt(sPort.trim());
-//                        settings.setPort(port);
-//                        break;
-//                    } catch (NumberFormatException ex) {
-//                        JOptionPane.showMessageDialog(
-//                                frame,
-//                                "Был введен некорректный порт сервера. Попробуйте еще раз.",
-//                                "Конфигурация клиента",
-//                                JOptionPane.ERROR_MESSAGE);
-//                    }
-//                }
-//            } catch (Exception exception) {
-//                ExceptionHandler.log(exception);
-//            }
         }
 
         private void showSetConnectionDialog() {

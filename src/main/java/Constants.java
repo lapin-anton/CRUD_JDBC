@@ -67,6 +67,10 @@ public class Constants {
     public static final String PASSWORD = " пароль:";
     public static final String HOST_NAME = " имя хоста:";
     public static final String PORT = " порт:";
+    // режимы пользователя
+    public static final String MODE_DEMO = "Демо-режим";
+    public static final String MODE_USER = "Режим пользователя";
+    public static final String MODE_ADMIN = "Режим администратора";
 
     //
 

@@ -1,4 +1,4 @@
-public enum UserRole {
+public enum UserMode {
     NONE,
     USER,
     ADMIN

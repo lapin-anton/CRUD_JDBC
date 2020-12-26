@@ -1,5 +1,8 @@
+import javax.swing.*;
+
 public class ClientGuiController extends Client {
-    private ClientGuiView view = new ClientGuiView(this);
+    private AuthUserDialog auth = new AuthUserDialog(this);
+    private ClientGuiView view;
     private ClientGuiModel model = new ClientGuiModel();
 
     public static void main(String[] args) {
@@ -13,17 +16,41 @@ public class ClientGuiController extends Client {
         socketThread.start();
     }
 
+    public void initAuth() throws Exception {
+        Order order = new Order(auth.getLogin(), auth.getPassword());
+        connector.clientSend(order);
+        Result result = connector.clientReceive();
+        if(result.isUserExists()) {
+            auth.dispose();
+            initView(auth.getLogin(), result.getMode());
+        } else {
+            JOptionPane.showMessageDialog(auth, "Неправильный логин или пароль", "Информация",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    public void initDemo() {
+        auth.dispose();
+        initView("", UserMode.NONE);
+    }
+
     private class GuiSocketThread extends SocketThread {
 
         @Override
         protected void clientMainLoop() {
-            while (true);
+            while (true) {
+
+            }
         }
 
         @Override
         protected void notifyConnectionStatusChanged(boolean clientConnected) {
             view.notifyConnectionStatusChanged(clientConnected);
         }
+    }
+
+    public void initView(String login, UserMode userMode) {
+        view = new ClientGuiView(this, login, userMode);
     }
 
     public ClientGuiView getView() {

@@ -98,6 +98,8 @@ public class Server {
             case MULTIPLE_DELETE: result = dbManager.deleteProducts(order);
                 break;
             case MULTIPLE_UPDATE: result = dbManager.updateProducts(order);
+                break;
+            case AUTHORIZATION: result = dbManager.checkUser(order);
         }
         return result;
     }

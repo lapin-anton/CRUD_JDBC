@@ -406,4 +406,32 @@ public class DBManager {
         }
         return new Result(message.toString());
     }
+
+    // проверка пользователя
+    public Result checkUser(Order order) {
+        Result result = null;
+        String sql = String.format("SELECT * FROM users WHERE name='%s' AND password='%s'", order.getLogin(),
+                order.getPassword());
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            UserMode mode = UserMode.NONE;
+            if (rs.next()) {
+                String sMode = rs.getString("mode");
+                switch (sMode) {
+                    case "admin":
+                        mode = UserMode.ADMIN;
+                        break;
+                    case "user":
+                        mode = UserMode.USER;
+                }
+                result = new Result(true, mode);
+            } else {
+                result = new Result(false, mode);
+            }
+        } catch (SQLException e) {
+            ExceptionHandler.log(e);
+        }
+        return result;
+    }
 }

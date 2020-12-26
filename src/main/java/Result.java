@@ -11,6 +11,8 @@ public class Result implements Serializable {
     private ProductType productType;
     private List<Product> products;
     private String updateStatus; // результат добавления, удаления, обновления в БД
+    private boolean isUserExists;
+    private UserMode mode;
 
     public Result(String updateStatus) {
         this.updateStatus = updateStatus;
@@ -28,6 +30,11 @@ public class Result implements Serializable {
     public Result(ProductType productType, List<Product> products) {
         this.productType = productType;
         this.products = products;
+    }
+
+    public Result(boolean isUserExists, UserMode mode) {
+        this.isUserExists = isUserExists;
+        this.mode = mode;
     }
 
     public List<Product> getProductList() {
@@ -48,5 +55,13 @@ public class Result implements Serializable {
 
     public void setProductType(ProductType productType) {
         this.productType = productType;
+    }
+
+    public boolean isUserExists() {
+        return isUserExists;
+    }
+
+    public UserMode getMode() {
+        return mode;
     }
 }

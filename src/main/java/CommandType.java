@@ -8,5 +8,6 @@ public enum CommandType implements Serializable {
     DELETE,
     SINGLE_READ,
     MULTIPLE_DELETE,
-    MULTIPLE_UPDATE
+    MULTIPLE_UPDATE,
+    AUTHORIZATION
 }
