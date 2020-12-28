@@ -46,6 +46,9 @@ public class Constants {
     public static final String SCREEN = "Размер экрана";
     public static final String PRINTING_TYPE = "Тип печати";
     public static final String COLOR = "Цветная печать";
+    public static final String LOGIN = "Логин пользователя";
+    public static final String MODE = "Режим";
+    public static final String PASS = "Пароль";
     // названия пунктов главного меню
     public static final String MENU_FILE = "Файл";
     public static final String MENU_OPEN = "Открыть...";
@@ -71,7 +74,7 @@ public class Constants {
     public static final String MODE_DEMO = "Демо-режим";
     public static final String MODE_USER = "Режим пользователя";
     public static final String MODE_ADMIN = "Режим администратора";
-
-    //
-
+    // названия колонок таблицы с пользователями
+    public static final String[] USER_COLUMNS = {Constants.LOGIN, Constants.MODE, Constants.PASS};
+    public static final Object[][] EMPTY_USER_TABLE = new Object[0][Constants.USER_COLUMNS.length];
 }

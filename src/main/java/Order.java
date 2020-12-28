@@ -73,6 +73,13 @@ public class Order implements Serializable {
         this.user = user;
     }
 
+    // чтение всех пользователей
+
+
+    public Order(CommandType commandType) {
+        this.commandType = commandType;
+    }
+
     public CommandType getCommandType() {
         return commandType;
     }

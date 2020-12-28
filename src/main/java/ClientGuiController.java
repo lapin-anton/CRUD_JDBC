@@ -38,8 +38,16 @@ public class ClientGuiController extends Client {
         initView(new User());
     }
 
-    public void sendNewUserInfo(User user) {
-        new AddUserCommand(user).execute();
+    public String sendNewUserInfo(User user) {
+        AddUserCommand command = new AddUserCommand(user);
+        command.execute();
+        return command.getResult().getUpdateStatus();
+    }
+
+    public Object[][] sendForGetUserInfo() {
+        ReadUserCommand command = new ReadUserCommand();
+        command.execute();
+        return command.getResult().getData();
     }
 
     private class GuiSocketThread extends SocketThread {

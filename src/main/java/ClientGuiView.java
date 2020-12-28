@@ -1027,7 +1027,9 @@ public class ClientGuiView {
                         JOptionPane.showMessageDialog(frame, "Введены не все данные.", "Предупреждение",
                                 JOptionPane.WARNING_MESSAGE);
                     } else {
-                        controller.sendNewUserInfo(new User(login, password, mode));
+                        String message = controller.sendNewUserInfo(new User(login, password, mode));
+                        JOptionPane.showMessageDialog(frame, message, "Результат добавления нового пользователя",
+                                JOptionPane.INFORMATION_MESSAGE);
                         dialog.dispose();
                     }
                 }
@@ -1056,11 +1058,8 @@ public class ClientGuiView {
     private class SetAuthChangeActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-
-            } catch (Exception exception) {
-                ExceptionHandler.log(exception);
-            }
+            Object[][] data = controller.sendForGetUserInfo();
+            new UpdateUserDialog(data);
         }
     }
 }

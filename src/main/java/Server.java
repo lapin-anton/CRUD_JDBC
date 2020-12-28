@@ -106,6 +106,8 @@ public class Server {
             case AUTHORIZATION: result = dbManager.checkUser(order);
                 break;
             case ADD_USER: result = dbManager.addUser(order);
+                break;
+            case READ_USERS: result = dbManager.extractAllUsers();
         }
         return result;
     }

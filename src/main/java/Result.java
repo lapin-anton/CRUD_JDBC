@@ -13,6 +13,7 @@ public class Result implements Serializable {
     private String updateStatus; // результат добавления, удаления, обновления в БД
     private boolean isUserExists;
     private User user;
+    private Object[][] data;
 
     public Result(String updateStatus) {
         this.updateStatus = updateStatus;
@@ -35,6 +36,10 @@ public class Result implements Serializable {
     public Result(boolean isUserExists, User user) {
         this.isUserExists = isUserExists;
         this.user = user;
+    }
+
+    public Result(Object[][] data) {
+        this.data = data;
     }
 
     public List<Product> getProductList() {
@@ -63,5 +68,9 @@ public class Result implements Serializable {
 
     public User getUser() {
         return user;
+    }
+
+    public Object[][] getData() {
+        return data;
     }
 }

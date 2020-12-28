@@ -462,4 +462,31 @@ public class DBManager {
         }
         return result;
     }
+
+    public Result extractAllUsers() {
+        Object[][] data = Constants.EMPTY_USER_TABLE;
+        String sql = "SELECT COUNT(*) AS count FROM users";
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            rs.next();
+            int rowCount = rs.getInt("count");
+            sql = "SELECT * FROM users";
+            stmt = connection.createStatement();
+            rs = stmt.executeQuery(sql);
+            if(rowCount > 0) {
+                data = new Object[rowCount][Constants.USER_COLUMNS.length];
+                int i = 0;
+                while (rs.next()) {
+                    data[i][0] = rs.getString("name");
+                    data[i][1] = rs.getString("mode");
+                    data[i][2] = rs.getString("password");
+                    i++;
+                }
+            }
+        } catch (SQLException e) {
+            ExceptionHandler.log(e);
+        }
+        return new Result(data);
+    }
 }
