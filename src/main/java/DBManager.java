@@ -434,4 +434,32 @@ public class DBManager {
         }
         return result;
     }
+
+    public Result addUser(Order order) {
+        Result result = null;
+        String sql = "INSERT INTO users (name, mode, password) " +
+                "VALUES (?, ?, ?)";
+        String sMode = "";
+        switch (order.getUser().getMode()) {
+            case USER: sMode = "user";
+                break;
+            case ADMIN: sMode = "admin";
+        }
+        int rowsInserted = 0;
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, order.getUser().getLogin());
+            statement.setString(2, sMode);
+            statement.setString(3, order.getUser().getPassword());
+            rowsInserted = statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (rowsInserted > 0) {
+            result = new Result(String.format("Пользователь с логином '%s' успешно добавлен в базу!", order.getUser().getLogin()));
+        } else  {
+            result = new Result(String.format("Пользователя с логином '%s' не удалось добавить в базу!", order.getUser().getLogin()));
+        }
+        return result;
+    }
 }

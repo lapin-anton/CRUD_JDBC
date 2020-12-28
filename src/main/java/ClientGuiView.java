@@ -111,6 +111,8 @@ public class ClientGuiView {
     }
 
     private void initView() {
+        boolean isDemo = user.getMode().equals(UserMode.NONE);
+        boolean isAdmin = user.getMode().equals(UserMode.ADMIN);
         openMI.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -133,7 +135,9 @@ public class ClientGuiView {
                 }
             }
         });
+        openMI.setEnabled(!isDemo);
         fileMenu.add(openMI);
+        saveMI.setEnabled(!isDemo);
         fileMenu.add(saveMI);
         saveAsMI.addActionListener(new ActionListener() {
             @Override
@@ -170,6 +174,7 @@ public class ClientGuiView {
                 }
             }
         });
+        saveAsMI.setEnabled(!isDemo);
         fileMenu.add(saveAsMI);
         exitMI.addActionListener(new ActionListener() {
             @Override
@@ -180,16 +185,22 @@ public class ClientGuiView {
         fileMenu.add(exitMI);
 
         createProductMI.addActionListener(new CreateAction());
+        createProductMI.setEnabled(!isDemo);
         actionMenu.add(createProductMI);
+        updateProductMI.setEnabled(!isDemo);
         updateProductMI.addActionListener(new UpdateAction());
         actionMenu.add(updateProductMI);
+        deleteProductMI.setEnabled(!isDemo);
         deleteProductMI.addActionListener(new DeleteAction());
         actionMenu.add(deleteProductMI);
 
+        authNewMI.setEnabled(isAdmin);
         authNewMI.addActionListener(new SetAuthNewActionListener());
         settingsMenu.add(authNewMI);
+        authChangeMI.setEnabled(isAdmin);
         authChangeMI.addActionListener(new SetAuthChangeActionListener());
         settingsMenu.add(authChangeMI);
+        connectionMI.setEnabled(isAdmin);
         connectionMI.addActionListener(new SetConnectActionListener());
         settingsMenu.add(connectionMI);
 
@@ -207,6 +218,7 @@ public class ClientGuiView {
         toolBar.add((Action) new UpdateAction());
         toolBar.add((Action) new DeleteAction());
         toolBar.setFloatable(false);
+        toolBar.setEnabled(!isDemo);
         // Панель с горизонтальным расположением компонентов
         BoxLayoutUtils blUtils = new BoxLayoutUtils();
         toolPanel = blUtils.createHorizontalPanel();
@@ -272,6 +284,7 @@ public class ClientGuiView {
                 MODES[user.getMode().ordinal()]);
         frame.setTitle(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 
@@ -640,6 +653,7 @@ public class ClientGuiView {
             dialog.pack();
             dialog.setSize(tableWidth, dialog.getHeight());
             dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);
         }
 
@@ -800,6 +814,7 @@ public class ClientGuiView {
             dialog.pack();
             dialog.setSize(tableWidth, dialog.getHeight());
             dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);
         }
 
@@ -968,101 +983,73 @@ public class ClientGuiView {
     private class SetConnectActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            showSetConnectionDialog();
-        }
-
-        private void showSetConnectionDialog() {
-            try {
-                Settings settings = new Settings();
-                String userName = settings.getUsername();
-                String password = settings.getPassword();
-                String hostName = settings.getHostName();
-                int port = settings.getPort();
-                JPanel mainPnl = new JPanel(new VerticalLayout());
-                JDialog dialog = new JDialog(frame, "Изменение настроек подключения к серверу и БД", true);
-                JTextField tfUserName = new JTextField(20);
-                tfUserName.setText(userName);
-                JTextField tfPassword = new JTextField(20);
-                tfPassword.setText(password);
-                JTextField tfHostName = new JTextField(20);
-                tfHostName.setText(hostName);
-                JTextField tfPort = new JTextField(20);
-                tfPort.setText(String.valueOf(port));
-                JLabel lClientHeader = new JLabel("Конфигурация клиента");
-                JLabel lDBHeader = new JLabel("Конфигурация подключения к БД");
-                JLabel lUserName = new JLabel(Constants.OPTION_INPUT + Constants.USER_NAME);
-                JLabel lPassword = new JLabel(Constants.OPTION_INPUT + Constants.PASSWORD);
-                JLabel lHostName = new JLabel(Constants.OPTION_INPUT + Constants.HOST_NAME);
-                JLabel lPort = new JLabel(Constants.OPTION_INPUT + Constants.PORT);
-                JPanel buttonPnl = new BoxLayoutUtils().createHorizontalPanel();
-                JButton saveBtn = new JButton("Сохранить");
-                saveBtn.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        settings.setUsername(tfUserName.getText().trim());
-                        settings.setPassword(tfPassword.getText().trim());
-                        settings.setHostName(tfHostName.getText().trim());
-                        try {
-                            int port = Integer.parseInt(tfPort.getText().trim());
-                            settings.saveNewSettings();
-                            settings.setPort(port);
-                            dialog.dispose();
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(
-                                frame,
-                                "Был введен некорректный порт сервера. Попробуйте еще раз.",
-                                "Конфигурация клиента",
-                                JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                });
-                JButton cancelBtn = new JButton("Отмена");
-                cancelBtn.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        dialog.dispose();
-                    }
-                });
-                JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
-                separator.setSize(separator.getWidth(), 1);
-
-                mainPnl.add(lClientHeader);
-                mainPnl.add(lHostName);
-                mainPnl.add(tfHostName);
-                mainPnl.add(lPort);
-                mainPnl.add(tfPort);
-                mainPnl.add(Box.createVerticalStrut(5));
-                mainPnl.add(lDBHeader);
-                mainPnl.add(lUserName);
-                mainPnl.add(tfUserName);
-                mainPnl.add(lPassword);
-                mainPnl.add(tfPassword);
-
-                dialog.getContentPane().add(mainPnl);
-                int dialogWidth = 210;
-                int strut = dialogWidth - saveBtn.getPreferredSize().width - cancelBtn.getPreferredSize().width - 15;
-                buttonPnl.add(Box.createHorizontalStrut(strut));
-                buttonPnl.add(saveBtn);
-                buttonPnl.add(cancelBtn);
-
-                dialog.getContentPane().add(buttonPnl, BorderLayout.SOUTH);
-                dialog.pack();
-                dialog.setSize(dialogWidth, 300);
-                dialog.setResizable(false);
-                dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-                dialog.setVisible(true);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            new SetDBConnectionDialog();
         }
     }
 
     private class SetAuthNewActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            JDialog dialog = new JDialog(frame, "Добавление нового пользователя", true);
+            JPanel pnlMain = new JPanel(new VerticalLayout());
+            JPanel pnlButton = new JPanel();
+            JLabel lblLogin = new JLabel("Логин:");
+            JLabel lblPass = new JLabel("Пароль:");
+            JLabel lblMode = new JLabel("Режим:");
+            JTextField tfLogin = new JTextField(15);
+            JTextField tfPass = new JTextField(15);
+            JComboBox<String> cbMode = new JComboBox<>();
+            JButton btnAdd = new JButton("Добавить");
+            JButton btnCancel = new JButton("Отмена");
 
+            pnlMain.add(lblLogin);
+            pnlMain.add(tfLogin);
+            pnlMain.add(lblPass);
+            pnlMain.add(tfPass);
+            pnlMain.add(lblMode);
+            cbMode.addItem(Constants.NOT_SELECTED);
+            cbMode.addItem(MODES[1]);
+            cbMode.addItem(MODES[2]);
+            cbMode.setSelectedIndex(0);
+            pnlMain.add(cbMode);
 
+            int strut = 200 - btnAdd.getPreferredSize().width - btnCancel.getPreferredSize().width - 20;
+            pnlButton.add(Box.createHorizontalStrut(strut));
+
+            btnAdd.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String login = tfLogin.getText().trim();
+                    String password = tfPass.getText().trim();
+                    UserMode[] modes = UserMode.values();
+                    UserMode mode = modes[cbMode.getSelectedIndex()];
+                    if(login.equals("") || password.equals("") || mode.equals(UserMode.NONE)) {
+                        JOptionPane.showMessageDialog(frame, "Введены не все данные.", "Предупреждение",
+                                JOptionPane.WARNING_MESSAGE);
+                    } else {
+                        controller.sendNewUserInfo(new User(login, password, mode));
+                        dialog.dispose();
+                    }
+                }
+            });
+            pnlButton.add(btnAdd);
+            btnCancel.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dialog.dispose();
+                }
+            });
+            pnlButton.add(btnCancel);
+
+            dialog.getContentPane().add(pnlMain);
+            dialog.getContentPane().add(pnlButton, BorderLayout.SOUTH);
+
+            dialog.pack();
+            dialog.setSize(230, 230);
+            dialog.setResizable(false);
+            dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
         }
     }
 

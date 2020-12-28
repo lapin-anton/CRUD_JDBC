@@ -58,7 +58,7 @@ public class Constants {
     public static final String MENU_DELETE = "Удалить товар(ы)...";
     public static final String MENU_SETTINGS = "Настройки";
     public static final String MENU_AUTH_NEW = "Добавить нового пользователя...";
-    public static final String MENU_AUTH_CHANGE = "Изменить настройки пользователя...";
+    public static final String MENU_AUTH_CHANGE = "Изменить параметры пользователя...";
     public static final String MENU_CONNECTION = "Подключение к серверу...";
     public static final String MENU_HELP = "Помощь";
     public static final String MENU_ABOUT = "О программе";

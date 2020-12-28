@@ -38,6 +38,10 @@ public class ClientGuiController extends Client {
         initView(new User());
     }
 
+    public void sendNewUserInfo(User user) {
+        new AddUserCommand(user).execute();
+    }
+
     private class GuiSocketThread extends SocketThread {
 
         @Override

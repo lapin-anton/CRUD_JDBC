@@ -19,6 +19,10 @@ public class Server {
     }
 
     public static void main(String[] args) {
+        if (settings.isNotExists()) {
+            new SetDBConnectionDialog();
+            return;
+        }
         Server server = new Server();
         server.run();
     }
@@ -100,6 +104,8 @@ public class Server {
             case MULTIPLE_UPDATE: result = dbManager.updateProducts(order);
                 break;
             case AUTHORIZATION: result = dbManager.checkUser(order);
+                break;
+            case ADD_USER: result = dbManager.addUser(order);
         }
         return result;
     }

@@ -62,10 +62,14 @@ public class Order implements Serializable {
     }
 
     // запрос на авторизацию
-
-
     public Order(User user) {
         this.commandType = CommandType.AUTHORIZATION;
+        this.user = user;
+    }
+
+    // добавление нового пользователя
+    public Order(CommandType commandType, User user) {
+        this.commandType = commandType;
         this.user = user;
     }
 
