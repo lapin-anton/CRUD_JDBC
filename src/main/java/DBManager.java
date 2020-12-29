@@ -489,4 +489,49 @@ public class DBManager {
         }
         return new Result(data);
     }
+
+    public Result updateUsers(Order order) {
+        StringBuilder message = new StringBuilder("");
+        String sql = "UPDATE users SET name=?, mode=?, password=? WHERE name=?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            for (Map.Entry<String, User> pair: order.getUsers().entrySet()) {
+                statement.setString(1, pair.getValue().getLogin());
+                statement.setString(2, pair.getValue().getMode().name().toLowerCase());
+                statement.setString(3, pair.getValue().getPassword());
+                statement.setString(4, pair.getKey());
+                int rowsInserted = statement.executeUpdate();
+                if (rowsInserted > 0) {
+                    message.append(String.format("Параметры пользователя '%s' успешно обновлены!", pair.getKey()));
+                } else {
+                    message.append(String.format("Параметры пользователя '%s' не удалось обновить!", pair.getKey()));
+                }
+            }
+        } catch (SQLException e) {
+            ExceptionHandler.log(e);
+        }
+        return new Result(message.toString());
+    }
+
+    public Result deleteUsers(Order order) {
+        StringBuilder message = new StringBuilder("");
+        try {
+            String sql = "DELETE FROM users WHERE name=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            String[] logins = order.getLogins();
+            for (int i = 1; i < logins.length; i++) {
+                statement.setString(1, logins[i]);
+                int rowsDeleted = statement.executeUpdate();
+                if (rowsDeleted > 0) {
+                    message.append(String.format("Пользователь '%s' успешно удален из базы!\n", logins[i]));
+                } else {
+                    message.append(String.format("Пользователь '%s' не был удален из базы. Возможно, его нет в базе.\n",
+                            logins[i]));
+                }
+            }
+        } catch (SQLException e) {
+            ExceptionHandler.log(e);
+        }
+        return new Result(message.toString());
+    }
 }

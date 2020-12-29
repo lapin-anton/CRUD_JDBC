@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.util.HashMap;
 
 public class ClientGuiController extends Client {
     private AuthUserDialog auth = new AuthUserDialog(this);
@@ -48,6 +49,18 @@ public class ClientGuiController extends Client {
         ReadUserCommand command = new ReadUserCommand();
         command.execute();
         return command.getResult().getData();
+    }
+
+    public void sendForDeleteUsers(String[] names) {
+        DeleteUserCommand command = new DeleteUserCommand(names);
+        command.execute();
+        model.setNewResult(command.getResult());
+    }
+
+    public void sendForUpdateUsers(HashMap<String,User> map) {
+        UpdateUserCommand command = new UpdateUserCommand(map);
+        command.execute();
+        model.setNewResult(command.getResult());
     }
 
     private class GuiSocketThread extends SocketThread {

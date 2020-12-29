@@ -108,6 +108,10 @@ public class Server {
             case ADD_USER: result = dbManager.addUser(order);
                 break;
             case READ_USERS: result = dbManager.extractAllUsers();
+                break;
+            case UPDATE_USERS: result = dbManager.updateUsers(order);
+                break;
+            case DELETE_USERS: result = dbManager.deleteUsers(order);
         }
         return result;
     }

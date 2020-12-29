@@ -13,6 +13,8 @@ public class Order implements Serializable {
     private Product product;
     private HashMap<String, Product> products;
     private User user;
+    private String[] logins;
+    private HashMap<String, User> users;
 
     //Запрос на чтение
     public Order(ProductType productType) {
@@ -74,10 +76,18 @@ public class Order implements Serializable {
     }
 
     // чтение всех пользователей
-
-
     public Order(CommandType commandType) {
         this.commandType = commandType;
+    }
+    // удаление пользователей
+    public Order(String[] logins) {
+        this.commandType = CommandType.DELETE_USERS;
+        this.logins = logins;
+    }
+
+    public Order(HashMap<String, User> users) {
+        this.commandType = CommandType.UPDATE_USERS;
+        this.users = users;
     }
 
     public CommandType getCommandType() {
@@ -106,5 +116,13 @@ public class Order implements Serializable {
 
     public User getUser() {
         return user;
+    }
+
+    public String[] getLogins() {
+        return logins;
+    }
+
+    public HashMap<String, User> getUsers() {
+        return users;
     }
 }

@@ -1059,7 +1059,7 @@ public class ClientGuiView {
         @Override
         public void actionPerformed(ActionEvent e) {
             Object[][] data = controller.sendForGetUserInfo();
-            new UpdateUserDialog(data);
+            new UpdateUserDialog(data, controller);
         }
     }
 }
