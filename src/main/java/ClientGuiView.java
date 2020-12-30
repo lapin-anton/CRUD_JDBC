@@ -54,6 +54,8 @@ public class ClientGuiView {
 
     private final ClientGuiController controller;
     private User user;
+    private boolean isDemo;
+    private boolean isAdmin;
 
     static {
         try {
@@ -107,12 +109,12 @@ public class ClientGuiView {
     public ClientGuiView(ClientGuiController controller, User user) {
         this.controller = controller;
         this.user = user;
+        this.isDemo = user.getMode().equals(UserMode.NONE);
+        this.isAdmin = user.getMode().equals(UserMode.ADMIN);
         initView();
     }
 
     private void initView() {
-        boolean isDemo = user.getMode().equals(UserMode.NONE);
-        boolean isAdmin = user.getMode().equals(UserMode.ADMIN);
         openMI.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -180,6 +182,7 @@ public class ClientGuiView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
+                controller.exit();
             }
         });
         fileMenu.add(exitMI);
@@ -213,12 +216,16 @@ public class ClientGuiView {
         // добавляем главное меню
 
         frame.setJMenuBar(menuBar);
-
-        toolBar.add((Action) new CreateAction());
-        toolBar.add((Action) new UpdateAction());
-        toolBar.add((Action) new DeleteAction());
+        Action createAction = new CreateAction();
+        createAction.setEnabled(!isDemo);
+        Action updateAction = new UpdateAction();
+        updateAction.setEnabled(!isDemo);
+        Action deleteAction = new DeleteAction();
+        deleteAction.setEnabled(!isDemo);
+        toolBar.add(createAction);
+        toolBar.add(updateAction);
+        toolBar.add(deleteAction);
         toolBar.setFloatable(false);
-        toolBar.setEnabled(!isDemo);
         // Панель с горизонтальным расположением компонентов
         BoxLayoutUtils blUtils = new BoxLayoutUtils();
         toolPanel = blUtils.createHorizontalPanel();

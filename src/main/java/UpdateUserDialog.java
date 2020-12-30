@@ -53,10 +53,13 @@ public class UpdateUserDialog {
                             j++;
                         }
                     }
-                    int result = JOptionPane.showConfirmDialog(frame, names, "Удаление пользователей", JOptionPane.YES_NO_OPTION,
-                            JOptionPane.WARNING_MESSAGE);
+                    int result = JOptionPane.showConfirmDialog(frame, names, "Удаление пользователей",
+                            JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                     if (result == 0) {
                         controller.sendForDeleteUsers(names);
+                        String message = controller.getModel().getNewResult().getUpdateStatus();
+                        JOptionPane.showMessageDialog(frame, message, "Информация",
+                                JOptionPane.INFORMATION_MESSAGE);
                         refreshTable();
                     }
                 } else {
@@ -93,9 +96,8 @@ public class UpdateUserDialog {
     }
 
     public void refreshTable() {
-        Object[][] data = Constants.EMPTY_LIST;
-        Object[] columnNames = Constants.DEFAULT_COLUMN;
-        data[0][0] = controller.getModel().getNewResult().getUpdateStatus();
+        Object[][] data = controller.sendForGetUserInfo();
+        Object[] columnNames = Constants.USER_COLUMNS;
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
         tblUsers.setModel(tableModel);
     }
@@ -155,8 +157,11 @@ public class UpdateUserDialog {
                             map.put((String) backUpData[i][0], new User(login, password, mode));
                         }
                         controller.sendForUpdateUsers(map);
-                        dialog.dispose();
+                        String message = controller.getModel().getNewResult().getUpdateStatus();
+                        JOptionPane.showMessageDialog(dialog, message, "Информация",
+                                JOptionPane.INFORMATION_MESSAGE);
                         refreshTable();
+                        dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Не было изменено ни одного параметра пользователей",
                                 "Предупреждение", JOptionPane.WARNING_MESSAGE);

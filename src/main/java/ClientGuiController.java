@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class ClientGuiController extends Client {
@@ -18,6 +19,7 @@ public class ClientGuiController extends Client {
     @Override
     protected void run() {
         SocketThread socketThread = new GuiSocketThread();
+        socketThread.setDaemon(true);
         socketThread.start();
     }
 
@@ -63,13 +65,19 @@ public class ClientGuiController extends Client {
         model.setNewResult(command.getResult());
     }
 
+    public void exit() {
+        try {
+            connector.close();
+        } catch (IOException e) {
+            ExceptionHandler.log(e);
+        }
+    }
+
     private class GuiSocketThread extends SocketThread {
 
         @Override
         protected void clientMainLoop() {
-            while (true) {
-
-            }
+            while (true);
         }
 
         @Override
