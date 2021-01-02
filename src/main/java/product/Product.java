@@ -19,10 +19,6 @@ public abstract class Product implements Serializable {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getModel() {
         return model;
     }
@@ -41,9 +37,5 @@ public abstract class Product implements Serializable {
 
     public int getPrice() {
         return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
     }
 }

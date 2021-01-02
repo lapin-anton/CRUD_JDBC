@@ -7,9 +7,11 @@ import java.util.Map;
 public class DBManager {
 
     private Connection connection;
+    private Encryptor encryptor;
 
     public DBManager(Connection connection) {
         this.connection = connection;
+        this.encryptor = new Encryptor(connection);
     }
 
     // для запросов на чтение
@@ -410,12 +412,11 @@ public class DBManager {
     // проверка пользователя
     public Result checkUser(Order order) {
         Result result = null;
-        String sql = String.format("SELECT * FROM users WHERE name='%s' AND password='%s'", order.getUser().getLogin(),
-                order.getUser().getPassword());
+        String sql = String.format("SELECT * FROM users WHERE name='%s'", order.getUser().getLogin());
+        UserMode mode = UserMode.NONE;
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
-            UserMode mode = UserMode.NONE;
             if (rs.next()) {
                 String sMode = rs.getString("mode");
                 switch (sMode) {
@@ -425,7 +426,13 @@ public class DBManager {
                     case "user":
                         mode = UserMode.USER;
                 }
-                result = new Result(true, new User(order.getUser().getLogin(), order.getUser().getPassword(), mode));
+                int pass_id = rs.getInt("password_id");
+                String original = getOriginalPassword(pass_id);
+                if (original.equals(order.getUser().getPassword())) {
+                    result = new Result(true, new User(order.getUser().getLogin(), original, mode));
+                } else {
+                    result = new Result(false, null);
+                }
             } else {
                 result = new Result(false, null);
             }
@@ -435,9 +442,22 @@ public class DBManager {
         return result;
     }
 
+    private String getOriginalPassword(int pass_id) throws SQLException {
+        String sql = String.format("SELECT * FROM passwords WHERE id=%d", pass_id);
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        byte[] encoded = new byte[16];
+        int i = 0;
+        while (rs.next()) {
+            encoded[i] = (byte) rs.getInt("val");
+            i++;
+        }
+        return encryptor.decode(encoded);
+    }
+
     public Result addUser(Order order) {
         Result result = null;
-        String sql = "INSERT INTO users (name, mode, password) " +
+        String sql = "INSERT INTO users (name, mode, password_id) " +
                 "VALUES (?, ?, ?)";
         String sMode = "";
         switch (order.getUser().getMode()) {
@@ -450,15 +470,48 @@ public class DBManager {
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, order.getUser().getLogin());
             statement.setString(2, sMode);
-            statement.setString(3, order.getUser().getPassword());
+            statement.setInt(3, getMaxPasswordId() + 1);
             rowsInserted = statement.executeUpdate();
+            if ((rowsInserted > 0) && (addPassword(order.getUser().getPassword(), -1))) {
+                result = new Result(String.format("Пользователь с логином '%s' успешно добавлен в базу!",
+                        order.getUser().getLogin()));
+            } else {
+                result = new Result(String.format("Пользователя с логином '%s' не удалось добавить в базу!",
+                        order.getUser().getLogin()));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (rowsInserted > 0) {
-            result = new Result(String.format("Пользователь с логином '%s' успешно добавлен в базу!", order.getUser().getLogin()));
-        } else  {
-            result = new Result(String.format("Пользователя с логином '%s' не удалось добавить в базу!", order.getUser().getLogin()));
+        return result;
+    }
+
+    private boolean addPassword(String password, int pass_id) throws SQLException {
+        String sql = "INSERT INTO passwords (id, val) VALUES (?,?)";
+        byte[] encoded = encryptor.code(password);
+        int count = 0;
+        for (int i = 0; i < encoded.length; i++) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, (pass_id == -1) ? getMaxPasswordId() : pass_id);
+            statement.setInt(2, encoded[i]);
+            int rowsInserted = statement.executeUpdate();
+            if (rowsInserted > 0) {
+                count++;
+            }
+        }
+        if(count == 16) {
+            System.out.println("Пароль успешно сохранен");
+        }
+        return (count == 16);
+    }
+
+
+    private int getMaxPasswordId() throws SQLException {
+        int result = 0;
+        String sql = "SELECT MAX(password_id) AS max_id FROM users";
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        if (rs.next()) {
+            result = rs.getInt("max_id");
         }
         return result;
     }
@@ -480,7 +533,8 @@ public class DBManager {
                 while (rs.next()) {
                     data[i][0] = rs.getString("name");
                     data[i][1] = rs.getString("mode");
-                    data[i][2] = rs.getString("password");
+                    int pass_id = rs.getInt("password_id");
+                    data[i][2] = getOriginalPassword(pass_id);
                     i++;
                 }
             }
@@ -492,14 +546,14 @@ public class DBManager {
 
     public Result updateUsers(Order order) {
         StringBuilder message = new StringBuilder("");
-        String sql = "UPDATE users SET name=?, mode=?, password=? WHERE name=?";
+        String sql = "UPDATE users SET name=?, mode=? WHERE name=?";
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
             for (Map.Entry<String, User> pair: order.getUsers().entrySet()) {
                 statement.setString(1, pair.getValue().getLogin());
                 statement.setString(2, pair.getValue().getMode().name().toLowerCase());
-                statement.setString(3, pair.getValue().getPassword());
-                statement.setString(4, pair.getKey());
+                updatePassword(pair.getValue().getPassword(), getOldPasswordId(pair.getValue().getLogin()));
+                statement.setString(3, pair.getKey());
                 int rowsInserted = statement.executeUpdate();
                 if (rowsInserted > 0) {
                     message.append(String.format("Параметры пользователя '%s' успешно обновлены!", pair.getKey()));
@@ -513,6 +567,33 @@ public class DBManager {
         return new Result(message.toString());
     }
 
+    private void updatePassword(String password, int old_pass_id) throws SQLException {
+        deletePassword(old_pass_id);
+        addPassword(password, old_pass_id);
+    }
+
+    private void deletePassword(int password_id) throws SQLException {
+        String sql = String.format("DELETE FROM passwords WHERE id=%d",password_id);
+        Statement stmt = connection.createStatement();
+        int deletedRows = stmt.executeUpdate(sql);
+        if(deletedRows > 0) {
+            System.out.println("Пароль успешно удален");
+        } else {
+            System.out.println("Не удалось удалить старый пароль");
+        }
+    }
+
+    private int getOldPasswordId(String name) throws SQLException {
+        int id = 0;
+        String sql = String.format("SELECT password_id FROM users WHERE name='%s'", name);
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        if(rs.next()) {
+            id = rs.getInt("password_id");
+        }
+        return id;
+    }
+
     public Result deleteUsers(Order order) {
         StringBuilder message = new StringBuilder("");
         try {
@@ -520,6 +601,7 @@ public class DBManager {
             PreparedStatement statement = connection.prepareStatement(sql);
             String[] logins = order.getLogins();
             for (int i = 1; i < logins.length; i++) {
+                deletePassword(getOldPasswordId(logins[i]));
                 statement.setString(1, logins[i]);
                 int rowsDeleted = statement.executeUpdate();
                 if (rowsDeleted > 0) {

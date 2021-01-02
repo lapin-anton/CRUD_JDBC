@@ -1,5 +1,3 @@
-import product.ProductType;
-
 public class ClientGuiModel {
     private Result newResult;
 

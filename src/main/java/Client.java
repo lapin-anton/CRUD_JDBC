@@ -80,8 +80,7 @@ public class Client {
                 if (commands.containsKey(answer)) {
                     currentCommand = commands.get(answer);
                     currentCommand.execute();
-                    Result result = currentCommand.getResult();
-                    currentCommand = null;
+                    currentCommand.getResult();
                 }
             }
         }

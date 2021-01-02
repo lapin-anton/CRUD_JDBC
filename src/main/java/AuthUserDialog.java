@@ -2,8 +2,6 @@ import layouts.VerticalLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class AuthUserDialog extends JFrame {
 
@@ -55,34 +53,26 @@ public class AuthUserDialog extends JFrame {
         int strut = WIDTH - btnSubmit.getPreferredSize().width - btnDemo.getPreferredSize().width - 50;
         pnlButton.add(Box.createHorizontalStrut(strut));
         btnSubmit.setFont(buttonFont);
-        btnSubmit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String login = tfLogin.getText().trim();
-                String password = tfPassword.getText().trim();
-                if (login.equals("") || password.equals("")) {
-                    JOptionPane.showMessageDialog(getParent(), "Введены не все данные", "Информация",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-                try {
-                    user = new User(login, password);
-                    controller.initAuth();
-                } catch (Exception exception) {
-                    JOptionPane.showMessageDialog(getParent(), "Ошибка! Проверьте подключение с сервером.",
-                            "Ошибка работы приложения",
-                            JOptionPane.ERROR_MESSAGE);
-                }
+        btnSubmit.addActionListener(e -> {
+            String login = tfLogin.getText().trim();
+            String password = tfPassword.getText().trim();
+            if (login.equals("") || password.equals("")) {
+                JOptionPane.showMessageDialog(getParent(), "Введены не все данные", "Информация",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            try {
+                user = new User(login, password);
+                controller.initAuth();
+            } catch (Exception exception) {
+                JOptionPane.showMessageDialog(getParent(), "Ошибка! Проверьте подключение с сервером.",
+                        "Ошибка работы приложения",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
         btnDemo.setFont(buttonFont);
         pnlButton.add(btnSubmit);
-        btnDemo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.initDemo();
-            }
-        });
+        btnDemo.addActionListener(e -> controller.initDemo());
         pnlButton.add(btnDemo);
 
 

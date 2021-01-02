@@ -41,30 +41,6 @@ public class ClientGuiController extends Client {
         initView(new User());
     }
 
-    public String sendNewUserInfo(User user) {
-        AddUserCommand command = new AddUserCommand(user);
-        command.execute();
-        return command.getResult().getUpdateStatus();
-    }
-
-    public Object[][] sendForGetUserInfo() {
-        ReadUserCommand command = new ReadUserCommand();
-        command.execute();
-        return command.getResult().getData();
-    }
-
-    public void sendForDeleteUsers(String[] names) {
-        DeleteUserCommand command = new DeleteUserCommand(names);
-        command.execute();
-        model.setNewResult(command.getResult());
-    }
-
-    public void sendForUpdateUsers(HashMap<String,User> map) {
-        UpdateUserCommand command = new UpdateUserCommand(map);
-        command.execute();
-        model.setNewResult(command.getResult());
-    }
-
     public void exit() {
         try {
             connector.close();
@@ -90,14 +66,6 @@ public class ClientGuiController extends Client {
         view = new ClientGuiView(this, user);
     }
 
-    public ClientGuiView getView() {
-        return view;
-    }
-
-    public void setView(ClientGuiView view) {
-        this.view = view;
-    }
-
     public ClientGuiModel getModel() {
         return model;
     }
@@ -120,5 +88,29 @@ public class ClientGuiController extends Client {
         command.execute();
         model.setNewResult(command.getResult());
         view.refreshTable();
+    }
+
+    public String sendForAddNewUser(User user) {
+        AddUserCommand command = new AddUserCommand(user);
+        command.execute();
+        return command.getResult().getUpdateStatus();
+    }
+
+    public Object[][] sendForGetUserInfo() {
+        ReadUserCommand command = new ReadUserCommand();
+        command.execute();
+        return command.getResult().getData();
+    }
+
+    public void sendForDeleteUsers(String[] names) {
+        DeleteUserCommand command = new DeleteUserCommand(names);
+        command.execute();
+        model.setNewResult(command.getResult());
+    }
+
+    public void sendForUpdateUsers(HashMap<String,User> map) {
+        UpdateUserCommand command = new UpdateUserCommand(map);
+        command.execute();
+        model.setNewResult(command.getResult());
     }
 }

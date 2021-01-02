@@ -3,7 +3,7 @@ package layouts;
 import java.awt.*;
 
 public class VerticalLayout implements LayoutManager {
-    private Dimension size = new Dimension();
+    private final Dimension size = new Dimension();
 
     // Следующие два метода не используются
     public void addLayoutComponent   (String name, Component comp) {}
@@ -21,13 +21,13 @@ public class VerticalLayout implements LayoutManager {
     public void layoutContainer(Container container)
     {
         // Список компонентов
-        Component list[] = container.getComponents();
+        Component[] list = container.getComponents();
         int currentY = 5;
-        for (int i = 0; i < list.length; i++) {
+        for (Component component : list) {
             // Определение предпочтительного размера компонента
-            Dimension pref = list[i].getPreferredSize();
+            Dimension pref = component.getPreferredSize();
             // Размещение компонента на экране
-            list[i].setBounds(8, currentY, pref.width, pref.height);
+            component.setBounds(8, currentY, pref.width, pref.height);
             // Учитываем промежуток в 5 пикселов
             currentY += 5;
             // Смещаем вертикальную позицию компонента
@@ -39,8 +39,8 @@ public class VerticalLayout implements LayoutManager {
         // Вычисление длины контейнера
         Component[] list = c.getComponents();
         int maxWidth = 0;
-        for (int i = 0; i < list.length; i++) {
-            int width = list[i].getWidth();
+        for (Component component : list) {
+            int width = component.getWidth();
             // Поиск компонента с максимальной длиной
             if (width > maxWidth)
                 maxWidth = width;
@@ -49,9 +49,9 @@ public class VerticalLayout implements LayoutManager {
         size.width = maxWidth + 10;
         // Вычисление высоты контейнера
         int height = 0;
-        for (int i = 0; i < list.length; i++) {
+        for (Component component : list) {
             height += 5;
-            height += list[i].getHeight();
+            height += component.getHeight();
         }
         size.height = height;
         return size;

@@ -30,10 +30,10 @@ public class UpdateUserDialog {
         }
     }
 
-    public UpdateUserDialog(Object[][] data, ClientGuiController controller) {
-        this.data = data;
+    public UpdateUserDialog(ClientGuiController controller) {
         this.controller = controller;
         init();
+        refreshTable();
     }
 
     private void init() {
@@ -96,7 +96,7 @@ public class UpdateUserDialog {
     }
 
     public void refreshTable() {
-        Object[][] data = controller.sendForGetUserInfo();
+        this.data = controller.sendForGetUserInfo();
         Object[] columnNames = Constants.USER_COLUMNS;
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
         tblUsers.setModel(tableModel);

@@ -24,31 +24,15 @@ public class PC extends Product {
         return speed;
     }
 
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
     public int getHd() {
         return hd;
-    }
-
-    public void setHd(int hd) {
-        this.hd = hd;
     }
 
     public int getRam() {
         return ram;
     }
 
-    public void setRam(int ram) {
-        this.ram = ram;
-    }
-
     public String getCd() {
         return cd;
-    }
-
-    public void setCd(String cd) {
-        this.cd = cd;
     }
 }

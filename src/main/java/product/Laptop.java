@@ -24,31 +24,15 @@ public class Laptop extends Product {
         return speed;
     }
 
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
     public int getHd() {
         return hd;
-    }
-
-    public void setHd(int hd) {
-        this.hd = hd;
     }
 
     public int getRam() {
         return ram;
     }
 
-    public void setRam(int ram) {
-        this.ram = ram;
-    }
-
     public int getScreen() {
         return screen;
-    }
-
-    public void setScreen(int screen) {
-        this.screen = screen;
     }
 }

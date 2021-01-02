@@ -115,4 +115,8 @@ public class Server {
         }
         return result;
     }
+
+    public DBManager getDbManager() {
+        return dbManager;
+    }
 }

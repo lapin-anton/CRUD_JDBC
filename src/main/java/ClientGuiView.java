@@ -45,17 +45,13 @@ public class ClientGuiView {
         Criteria.BY_COLOR.ordinal()};
 
     // картинки на кнопках на панели инструментов
-    private static final String CREATE_ICON = "./src/main/resources/images/icon32x32/create.png";
-    private static final String UPDATE_ICON = "./src/main/resources/images/icon32x32/update.png";
-    private static final String DELETE_ICON = "./src/main/resources/images/icon32x32/delete.png";
+    private static final String COMMON_ICON_SRC = "./src/main/resources/images/icon32x32/";
+    private static final String CREATE_ICON = COMMON_ICON_SRC + "create.png";
+    private static final String UPDATE_ICON = COMMON_ICON_SRC + "update.png";
+    private static final String DELETE_ICON = COMMON_ICON_SRC + "delete.png";
 
-    //параметры пользователя
+    // режимы пользователя
     private static final String[] MODES = {Constants.MODE_DEMO, Constants.MODE_USER, Constants.MODE_ADMIN};
-
-    private final ClientGuiController controller;
-    private User user;
-    private boolean isDemo;
-    private boolean isAdmin;
 
     static {
         try {
@@ -64,6 +60,11 @@ public class ClientGuiView {
             e.printStackTrace();
         }
     }
+
+    private final ClientGuiController controller;
+    private User user;
+    private boolean isDemo;
+    private boolean isAdmin;
 
     private JFrame frame = new JFrame();
     // меню приложения
@@ -1034,7 +1035,7 @@ public class ClientGuiView {
                         JOptionPane.showMessageDialog(frame, "Введены не все данные.", "Предупреждение",
                                 JOptionPane.WARNING_MESSAGE);
                     } else {
-                        String message = controller.sendNewUserInfo(new User(login, password, mode));
+                        String message = controller.sendForAddNewUser(new User(login, password, mode));
                         JOptionPane.showMessageDialog(frame, message, "Результат добавления нового пользователя",
                                 JOptionPane.INFORMATION_MESSAGE);
                         dialog.dispose();
@@ -1065,8 +1066,7 @@ public class ClientGuiView {
     private class SetAuthChangeActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            Object[][] data = controller.sendForGetUserInfo();
-            new UpdateUserDialog(data, controller);
+            new UpdateUserDialog(controller);
         }
     }
 }
